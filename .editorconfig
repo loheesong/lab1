@@ -1,0 +1,8 @@
+[*.cs]
+# Place opening curly braces on the same line
+csharp_new_line_before_open_brace = none
+
+# Keep related keywords on the same line as closing braces
+csharp_new_line_before_else = false
+csharp_new_line_before_catch = false
+csharp_new_line_before_finally = false
