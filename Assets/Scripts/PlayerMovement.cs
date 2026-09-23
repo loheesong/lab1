@@ -4,35 +4,177 @@ using UnityEngine;
 using TMPro;
 
 public class PlayerMovement : MonoBehaviour {
-    // movement 
-    public float speed = 10;
-    public float maxSpeed = 20;
-    private Rigidbody2D marioBody;
-    public float upSpeed = 10;
-    private bool onGroundState = true;
+    private Rigidbody2D rb;
+    private BoxCollider2D col;
 
-    // animation
+    [Header("Layers")]
+    [SerializeField] private LayerMask groundLayer;
+
+    // ---------------------------- MOVEMENT ----------------------------
+    private Vector2 moveInput;
+
+    [Header("Horizontal Movement")]
+    [SerializeField] private float moveSpeed = 9f;
+    [SerializeField] private float acceleration = 90f;
+    [SerializeField] private float deceleration = 70f;
+    [SerializeField] private float airAcceleration = 60f;
+    [SerializeField] private float airDeceleration = 30f;
+
+    [Header("Vertical Movement")]
+    [SerializeField] private float jumpHeight = 6f;
+    [SerializeField] private float timeToJumpApex = 0.35f;
+    [SerializeField] private float downwardMovementMultiplier = 2.2f;
+    [SerializeField] private float jumpCutMultiplier = 2.5f;
+    [SerializeField] private float apexHangThreshold = 1.2f;
+    [SerializeField] private float apexHangGravityMultiplier = 0.5f;
+    private float gravityStrength;
+    private float initialJumpVelocity;
+    // states
+    private bool isGrounded = true;
+
+    [Header("Forgiveness")]
+    [SerializeField] private float coyoteTime = 0.1f;
+    private float coyoteTimeCounter;
+    [SerializeField] private float cornerCorrectionDistance = 0.25f;
+
+    // ---------------------------- ANIMATION ----------------------------
     private SpriteRenderer marioSprite;
     private bool faceRightState = true;
 
-    // UI
+    // ---------------------------- UI ----------------------------
     public TextMeshProUGUI scoreText;
     [SerializeField] private GameObject uiScreen;
 
-    // enemies 
+    // ---------------------------- ENEMIES ----------------------------
     public GameObject enemies;
     public JumpOverGoomba jumpOverGoomba;
+
+    private void Awake() {
+        rb = GetComponent<Rigidbody2D>();
+        col = GetComponent<BoxCollider2D>();
+        rb.gravityScale = 0f;
+        CalculateJumpVariables();
+    }
 
     // Start is called before the first frame update
     void Start() {
         // Set to be 30 FPS
         Application.targetFrameRate = 30;
-        marioBody = GetComponent<Rigidbody2D>();
         marioSprite = GetComponent<SpriteRenderer>();
     }
 
     // Update is called once per frame
     void Update() {
+        GatherInput();
+        CheckCollisions();
+        UpdateTimers();
+        HandleJump();
+
+        flipSprite();
+    }
+
+    // FixedUpdate is called 50 times a second
+    void FixedUpdate() {
+        ApplyHorizontalMovement();
+        ApplyCustomGravity();
+    }
+
+    void OnTriggerEnter2D(Collider2D other) {
+        if (other.gameObject.CompareTag("Enemy")) {
+            Debug.Log("Collided with goomba!");
+            Time.timeScale = 0.0f;
+            uiScreen.SetActive(true);
+        }
+    }
+
+    // ---------------------------- MOVEMENT ----------------------------
+    private void CheckCollisions() {
+        Bounds bounds = col.bounds;
+        // Make the check box slightly narrower than the player so walls aren't flagged as floors
+        Vector2 checkSize = new Vector2(bounds.size.x - 0.04f, 0.08f);
+        isGrounded = Physics2D.OverlapBox(new Vector2(bounds.center.x, bounds.min.y), checkSize, 0f, groundLayer);
+    }
+    private void GatherInput() {
+        // Using legacy raw axis polling for instantaneous response
+        moveInput.x = Input.GetAxisRaw("Horizontal");
+        moveInput.y = Input.GetAxisRaw("Vertical");
+    }
+
+    // horizontal related
+    private void ApplyHorizontalMovement() {
+        float targetSpeed = moveInput.x * moveSpeed;
+
+        // Choose acceleration or deceleration depending on current intent and state
+        float accelRate;
+        if (isGrounded) {
+            accelRate = Mathf.Abs(targetSpeed) > 0.01f ? acceleration : deceleration;
+        } else {
+            accelRate = Mathf.Abs(targetSpeed) > 0.01f ? airAcceleration : airDeceleration;
+        }
+
+        float speedDiff = targetSpeed - rb.linearVelocity.x;
+        float movement = speedDiff * accelRate * Time.fixedDeltaTime;
+        rb.linearVelocity = new Vector2(rb.linearVelocity.x + movement, rb.linearVelocity.y);
+    }
+
+    // vertical related 
+    private void HandleJump() {
+        if (Input.GetButtonDown("Jump") && coyoteTimeCounter > 0f) {
+            rb.linearVelocityY = initialJumpVelocity;
+            coyoteTimeCounter = 0f;
+        }
+    }
+    private void CalculateJumpVariables() {
+        gravityStrength = 2f * jumpHeight / Mathf.Pow(timeToJumpApex, 2f);
+        initialJumpVelocity = gravityStrength * timeToJumpApex;
+    }
+    private void ApplyCustomGravity() {
+        float currentGravity = gravityStrength;
+
+        // Condition 1: Falling -> Plummet briskly
+        if (rb.linearVelocity.y < 0f) {
+            currentGravity *= downwardMovementMultiplier;
+        }
+        // Condition 2: Early button release -> Cut jump short
+        else if (rb.linearVelocity.y > 0f && !Input.GetButton("Jump")) {
+            currentGravity *= jumpCutMultiplier;
+        }
+        // Condition 3: At the crest of the arc -> Float briefly
+        else if (Mathf.Abs(rb.linearVelocity.y) < apexHangThreshold) {
+            currentGravity *= apexHangGravityMultiplier;
+        }
+
+        rb.linearVelocity = new Vector2(rb.linearVelocity.x, rb.linearVelocity.y - (currentGravity * Time.fixedDeltaTime));
+    }
+    private void CornerCorrectUpwards() {
+        if (rb.linearVelocityY <= 0f) return;
+
+        Bounds b = col.bounds;
+        Vector2 origin = new Vector2(b.center.x, b.max.y);
+
+        RaycastHit2D hitLeft = Physics2D.Raycast(new Vector2(b.min.x + 0.05f, origin.y), Vector2.up, cornerCorrectionDistance, groundLayer);
+        RaycastHit2D hitRight = Physics2D.Raycast(new Vector2(b.max.x - 0.05f, origin.y), Vector2.up, cornerCorrectionDistance, groundLayer);
+
+        // Nudge player laterally away from ceiling corners
+        if (hitRight && !hitLeft) {
+            transform.position += Vector3.left * 0.05f;
+        } else if (hitLeft && !hitRight) {
+            transform.position += Vector3.right * 0.05f;
+        }
+    }
+    private void UpdateTimers() {
+        coyoteTimeCounter = isGrounded ? coyoteTime : coyoteTimeCounter - Time.deltaTime;
+    }
+
+
+    private void OnDrawGizmosSelected() {
+        if (col == null) return;
+        Gizmos.color = Color.green;
+        Bounds b = col.bounds;
+        Gizmos.DrawWireCube(new Vector2(b.center.x, b.min.y), new Vector2(b.size.x - 0.04f, 0.08f));
+    }
+    // ---------------------------- ANIMATION ----------------------------
+    private void flipSprite() {
         // toggle state
         if (Input.GetKeyDown("a") && faceRightState) {
             faceRightState = false;
@@ -45,42 +187,7 @@ public class PlayerMovement : MonoBehaviour {
         }
     }
 
-    void OnCollisionEnter2D(Collision2D col) {
-        if (col.gameObject.CompareTag("Ground")) onGroundState = true;
-    }
-
-    // FixedUpdate is called 50 times a second
-    void FixedUpdate() {
-        float moveHorizontal = Input.GetAxisRaw("Horizontal");
-
-        if (Mathf.Abs(moveHorizontal) > 0) {
-            Vector2 movement = new Vector2(moveHorizontal, 0);
-            // check if it doesn't go beyond maxSpeed
-            if (marioBody.linearVelocity.magnitude < maxSpeed)
-                marioBody.AddForce(movement * speed);
-        }
-
-        // stop
-        if (Input.GetKeyUp("a") || Input.GetKeyUp("d")) {
-            // stop
-            marioBody.linearVelocity = Vector2.zero;
-        }
-
-        if (Input.GetKeyDown("space") && onGroundState) {
-            marioBody.AddForce(Vector2.up * upSpeed, ForceMode2D.Impulse);
-            onGroundState = false;
-        }
-    }
-
-    void OnTriggerEnter2D(Collider2D other) {
-        if (other.gameObject.CompareTag("Enemy")) {
-            Debug.Log("Collided with goomba!");
-            Time.timeScale = 0.0f;
-            uiScreen.SetActive(true);
-        }
-    }
-
-    // UI
+    // ---------------------------- UI ----------------------------
     public void RestartButtonCallback(int input) {
         Debug.Log("Restart!");
         // reset everything
@@ -91,14 +198,13 @@ public class PlayerMovement : MonoBehaviour {
 
     private void ResetGame() {
         // reset position
-        marioBody.transform.position = new Vector3(-5.33f, -4.69f, 0.0f);
+        rb.transform.position = new Vector3(-5.33f, -4.69f, 0.0f);
         // reset sprite direction
         faceRightState = true;
         marioSprite.flipX = false;
         // reset score
         scoreText.text = "Score: 0";
         // reset Goomba
-        Debug.Log("Resetting enemies!", enemies);
         foreach (Transform eachChild in enemies.transform) {
             eachChild.transform.localPosition = eachChild.GetComponent<EnemyMovement>().startPosition;
         }
