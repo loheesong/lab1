@@ -35,7 +35,6 @@ public class PlayerMovement : MonoBehaviour {
     [Header("Forgiveness")]
     [SerializeField] private float coyoteTime = 0.1f;
     private float coyoteTimeCounter;
-    [SerializeField] private float cornerCorrectionDistance = 0.25f;
 
     // ---------------------------- ANIMATION ----------------------------
     private SpriteRenderer marioSprite;
@@ -146,26 +145,9 @@ public class PlayerMovement : MonoBehaviour {
 
         rb.linearVelocity = new Vector2(rb.linearVelocity.x, rb.linearVelocity.y - (currentGravity * Time.fixedDeltaTime));
     }
-    private void CornerCorrectUpwards() {
-        if (rb.linearVelocityY <= 0f) return;
-
-        Bounds b = col.bounds;
-        Vector2 origin = new Vector2(b.center.x, b.max.y);
-
-        RaycastHit2D hitLeft = Physics2D.Raycast(new Vector2(b.min.x + 0.05f, origin.y), Vector2.up, cornerCorrectionDistance, groundLayer);
-        RaycastHit2D hitRight = Physics2D.Raycast(new Vector2(b.max.x - 0.05f, origin.y), Vector2.up, cornerCorrectionDistance, groundLayer);
-
-        // Nudge player laterally away from ceiling corners
-        if (hitRight && !hitLeft) {
-            transform.position += Vector3.left * 0.05f;
-        } else if (hitLeft && !hitRight) {
-            transform.position += Vector3.right * 0.05f;
-        }
-    }
     private void UpdateTimers() {
         coyoteTimeCounter = isGrounded ? coyoteTime : coyoteTimeCounter - Time.deltaTime;
     }
-
 
     private void OnDrawGizmosSelected() {
         if (col == null) return;
