@@ -1,4 +1,4 @@
-using System.Collections;
+using System;
 using System.Collections.Generic;
 using UnityEngine;
 using TMPro;
@@ -39,6 +39,14 @@ public class PlayerMovement : MonoBehaviour {
     // ---------------------------- ANIMATION ----------------------------
     private SpriteRenderer marioSprite;
     private bool faceRightState = true;
+
+    public event Action OnSkid;                     // on rapid direction change
+    public event Action<bool> OnGroundedChanged;    // when landing or taking off
+    public event Action<bool> OnDirectionChanged;   // when changing left/right
+    public event Action OnPlayerReset;              // when ResetGame() is called
+    public event Action OnPlayerDeath;              // on death (for next sections)
+    public float CurrentSpeed => Mathf.Abs(rb.linearVelocity.x);
+    public bool IsGrounded => isGrounded;
 
     // ---------------------------- UI ----------------------------
     public TextMeshProUGUI scoreText;
@@ -91,7 +99,12 @@ public class PlayerMovement : MonoBehaviour {
         Bounds bounds = col.bounds;
         // Make the check box slightly narrower than the player so walls aren't flagged as floors
         Vector2 checkSize = new Vector2(bounds.size.x - 0.04f, 0.08f);
-        isGrounded = Physics2D.OverlapBox(new Vector2(bounds.center.x, bounds.min.y), checkSize, 0f, groundLayer);
+        bool currentlyGrounded = Physics2D.OverlapBox(new Vector2(bounds.center.x, bounds.min.y), checkSize, 0f, groundLayer);
+
+        if (currentlyGrounded != isGrounded) {
+            isGrounded = currentlyGrounded;
+            OnGroundedChanged?.Invoke(isGrounded);
+        }
     }
     private void GatherInput() {
         // Using legacy raw axis polling for instantaneous response
@@ -121,6 +134,9 @@ public class PlayerMovement : MonoBehaviour {
         if (Input.GetButtonDown("Jump") && coyoteTimeCounter > 0f) {
             rb.linearVelocityY = initialJumpVelocity;
             coyoteTimeCounter = 0f;
+
+            isGrounded = false;
+            OnGroundedChanged?.Invoke(false);
         }
     }
     private void CalculateJumpVariables() {
@@ -159,13 +175,21 @@ public class PlayerMovement : MonoBehaviour {
     private void flipSprite() {
         // toggle state
         if (Input.GetKeyDown("a") && faceRightState) {
+            // skid
+            if (isGrounded && rb.linearVelocity.x > 0.1f) {
+                OnSkid?.Invoke();
+            }
             faceRightState = false;
-            marioSprite.flipX = true;
+            OnDirectionChanged?.Invoke(faceRightState);
         }
 
         if (Input.GetKeyDown("d") && !faceRightState) {
+            // skid
+            if (isGrounded && rb.linearVelocity.x < -0.1f) {
+                OnSkid?.Invoke();
+            }
             faceRightState = true;
-            marioSprite.flipX = false;
+            OnDirectionChanged?.Invoke(faceRightState);
         }
     }
 
@@ -179,18 +203,18 @@ public class PlayerMovement : MonoBehaviour {
     }
 
     private void ResetGame() {
-        // reset position
         rb.transform.position = new Vector3(-5.33f, -4.69f, 0.0f);
-        // reset sprite direction
         faceRightState = true;
-        marioSprite.flipX = false;
-        // reset score
+        OnDirectionChanged?.Invoke(faceRightState);
+
+        // Notify observers to trigger gameRestart
+        OnPlayerReset?.Invoke();
+
+        // Reset scores & enemies 
         scoreText.text = "Score: 0";
-        // reset Goomba
         foreach (Transform eachChild in enemies.transform) {
             eachChild.transform.localPosition = eachChild.GetComponent<EnemyMovement>().startPosition;
         }
-        // reset score
         jumpOverGoomba.score = 0;
         uiScreen.SetActive(false);
     }
