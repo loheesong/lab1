@@ -10,6 +10,8 @@ public class PlayerMovement : MonoBehaviour {
     [Header("Layers")]
     [SerializeField] private LayerMask groundLayer;
 
+    [Header("Spawn Point")]
+    [SerializeField] private Transform spawnPoint;
     // ---------------------------- MOVEMENT ----------------------------
     private Vector2 moveInput;
 
@@ -72,6 +74,9 @@ public class PlayerMovement : MonoBehaviour {
         // Set to be 30 FPS
         Application.targetFrameRate = 30;
         marioSprite = GetComponent<SpriteRenderer>();
+
+        // Set Mario to spawn point
+        transform.position = spawnPoint.position;
     }
 
     // Update is called once per frame
@@ -227,8 +232,8 @@ public class PlayerMovement : MonoBehaviour {
     private void ResetGame() {
         alive = true;
         rb.linearVelocity = Vector2.zero;
+        transform.position = spawnPoint.position;
 
-        rb.transform.position = new Vector3(-5.33f, -4.69f, 0.0f);
         faceRightState = true;
         OnDirectionChanged?.Invoke(faceRightState);
 
