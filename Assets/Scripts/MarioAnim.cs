@@ -33,6 +33,7 @@ public class MarioAnim : MonoBehaviour {
         playerMovement.OnGroundedChanged += HandleGroundedChanged;
         playerMovement.OnDirectionChanged += HandleDirectionChanged;
         playerMovement.OnPlayerReset += HandlePlayerReset;
+        playerMovement.OnPlayerDeath += HandlePlayerDeath;
     }
 
     private void OnDisable() {
@@ -43,6 +44,7 @@ public class MarioAnim : MonoBehaviour {
         playerMovement.OnGroundedChanged -= HandleGroundedChanged;
         playerMovement.OnDirectionChanged -= HandleDirectionChanged;
         playerMovement.OnPlayerReset -= HandlePlayerReset;
+        playerMovement.OnPlayerDeath -= HandlePlayerDeath;
     }
 
     // FRAME UPDATE (Continuous Parameters)
@@ -53,7 +55,7 @@ public class MarioAnim : MonoBehaviour {
         animator.SetFloat("xSpeed", playerMovement.CurrentSpeed);
     }
 
-    // EVENT CALLBACKS (Discrete Actions)
+    // EVENT CALLBACKS
     private void HandleSkid() {
         animator.SetTrigger("onSkid");
     }
@@ -69,5 +71,8 @@ public class MarioAnim : MonoBehaviour {
 
     private void HandlePlayerReset() {
         animator.SetTrigger("gameRestart");
+    }
+    private void HandlePlayerDeath() {
+        animator.Play("mario-die");
     }
 }

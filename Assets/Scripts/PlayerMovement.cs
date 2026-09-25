@@ -48,6 +48,10 @@ public class PlayerMovement : MonoBehaviour {
     public float CurrentSpeed => Mathf.Abs(rb.linearVelocity.x);
     public bool IsGrounded => isGrounded;
 
+    [Header("Death Settings")]
+    public float deathImpulse = 5f;
+    [System.NonSerialized] public bool alive = true;
+
     // ---------------------------- UI ----------------------------
     public TextMeshProUGUI scoreText;
     [SerializeField] private GameObject uiScreen;
@@ -72,6 +76,8 @@ public class PlayerMovement : MonoBehaviour {
 
     // Update is called once per frame
     void Update() {
+        if (!alive) return;
+
         GatherInput();
         CheckCollisions();
         UpdateTimers();
@@ -82,15 +88,23 @@ public class PlayerMovement : MonoBehaviour {
 
     // FixedUpdate is called 50 times a second
     void FixedUpdate() {
+        if (!alive) {
+            rb.linearVelocityY -= 20f * Time.fixedDeltaTime;
+            return;
+        }
+
         ApplyHorizontalMovement();
         ApplyCustomGravity();
     }
 
     void OnTriggerEnter2D(Collider2D other) {
-        if (other.gameObject.CompareTag("Enemy")) {
+        if (other.gameObject.CompareTag("Enemy") && alive) {
             Debug.Log("Collided with goomba!");
-            Time.timeScale = 0.0f;
-            uiScreen.SetActive(true);
+
+            // process death 
+            alive = false;
+            rb.linearVelocity = Vector2.zero;
+            OnPlayerDeath?.Invoke();
         }
     }
 
@@ -192,7 +206,15 @@ public class PlayerMovement : MonoBehaviour {
             OnDirectionChanged?.Invoke(faceRightState);
         }
     }
-
+    // Called by an Animation Event at the start of mario-die
+    public void PlayDeathImpulse() {
+        rb.linearVelocity = new Vector2(0f, deathImpulse);
+    }
+    // Called by an Animation Event at the end of mario-die
+    public void GameOverScene() {
+        Time.timeScale = 0.0f; // Stop time only after the death animation finishes
+        uiScreen.SetActive(true);
+    }
     // ---------------------------- UI ----------------------------
     public void RestartButtonCallback(int input) {
         Debug.Log("Restart!");
@@ -203,6 +225,9 @@ public class PlayerMovement : MonoBehaviour {
     }
 
     private void ResetGame() {
+        alive = true;
+        rb.linearVelocity = Vector2.zero;
+
         rb.transform.position = new Vector3(-5.33f, -4.69f, 0.0f);
         faceRightState = true;
         OnDirectionChanged?.Invoke(faceRightState);

@@ -361,7 +361,7 @@ TextureImporter:
     serializedVersion: 2
     sprites:
     - serializedVersion: 2
-      name: mario_0
+      name: mario_die
       rect:
         serializedVersion: 2
         x: 0
@@ -2310,7 +2310,6 @@ TextureImporter:
     spriteCustomMetadata:
       entries: []
     nameFileIdTable:
-      mario_0: -4604146857013224401
       mario_1: -2881081967727937809
       mario_13: -4192862825942455180
       mario_14: -911162704158615847
@@ -2393,6 +2392,7 @@ TextureImporter:
       mario_85: -2524716969853798764
       mario_86: 7055924261345658350
       mario_87: 2905780497689525339
+      mario_die: -4604146857013224401
       small_mario_jump: -5251323558665319476
       small_mario_run_1: 5159013571427679020
       small_mario_run_2: 9170902424559430875
