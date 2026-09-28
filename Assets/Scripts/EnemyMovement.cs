@@ -11,12 +11,18 @@ public class EnemyMovement : MonoBehaviour {
     private Vector2 velocity;
 
     private Rigidbody2D enemyBody;
-    public Vector3 startPosition = new Vector3(0.0f, 0.0f, 0.0f);
+
+    [SerializeField] private Transform spawnPoint;
 
     void Start() {
         enemyBody = GetComponent<Rigidbody2D>();
-        // get the starting position
+        ResetGoomba();
+    }
+
+    public void ResetGoomba() {
+        transform.position = spawnPoint.position;
         originalX = transform.position.x;
+        moveRight = -1; // start moving left 
         ComputeVelocity();
     }
     void ComputeVelocity() {
@@ -32,17 +38,13 @@ public class EnemyMovement : MonoBehaviour {
     }
 
     void FixedUpdate() {
-        if (Mathf.Abs(enemyBody.position.x - originalX) < maxOffset) {// move goomba
-            Movegoomba();
-        } else {
-            // change direction
-            moveRight *= -1;
+        if (enemyBody.position.x > originalX + maxOffset) {
+            moveRight = -1;
             ComputeVelocity();
-            Movegoomba();
+        } else if (enemyBody.position.x < originalX - maxOffset) {
+            moveRight = 1;
+            ComputeVelocity();
         }
-    }
-
-    void OnTriggerEnter2D(Collider2D other) {
-        Debug.Log(other.gameObject.name);
+        Movegoomba();
     }
 }

@@ -13,7 +13,6 @@ public class PlayerMovement : MonoBehaviour {
 
     [Header("Layers")]
     [SerializeField] private LayerMask groundLayer;
-    readonly int collisionLayerMask = (1 << 3) | (1 << 6) | (1 << 7);
 
     [SerializeField] private Transform spawnPoint;
     // ---------------------------- MOVEMENT ----------------------------
@@ -37,6 +36,7 @@ public class PlayerMovement : MonoBehaviour {
     private float initialJumpVelocity;
     // states
     private bool isGrounded = true;
+    private bool canDoubleJump;
 
     [Header("Forgiveness")]
     [SerializeField] private float coyoteTime = 0.1f;
@@ -154,12 +154,19 @@ public class PlayerMovement : MonoBehaviour {
 
     // vertical related 
     private void HandleJump() {
-        if (Input.GetButtonDown("Jump") && coyoteTimeCounter > 0f) {
-            rb.linearVelocityY = initialJumpVelocity;
-            coyoteTimeCounter = 0f;
-
-            isGrounded = false;
-            OnGroundedChanged?.Invoke(false);
+        if (Input.GetButtonDown("Jump")) {
+            // First jump (grounded or within coyote time)
+            if (coyoteTimeCounter > 0f) {
+                rb.linearVelocityY = initialJumpVelocity;
+                coyoteTimeCounter = 0f;
+                isGrounded = false;
+                OnGroundedChanged?.Invoke(false);
+            }
+            // Mid-air double jump
+            else if (canDoubleJump) {
+                rb.linearVelocityY = initialJumpVelocity;
+                canDoubleJump = false; // Consume the double jump
+            }
         }
     }
     private void CalculateJumpVariables() {
@@ -185,7 +192,12 @@ public class PlayerMovement : MonoBehaviour {
         rb.linearVelocity = new Vector2(rb.linearVelocity.x, rb.linearVelocity.y - (currentGravity * Time.fixedDeltaTime));
     }
     private void UpdateTimers() {
-        coyoteTimeCounter = isGrounded ? coyoteTime : coyoteTimeCounter - Time.deltaTime;
+        if (isGrounded) {
+            coyoteTimeCounter = coyoteTime;
+            canDoubleJump = true; // Refill double jump on ground
+        } else {
+            coyoteTimeCounter -= Time.deltaTime;
+        }
     }
 
     private void OnDrawGizmosSelected() {
@@ -234,14 +246,15 @@ public class PlayerMovement : MonoBehaviour {
     }
 
     private void ResetGame() {
+        // player related 
         alive = true;
+        canDoubleJump = true;
         rb.linearVelocity = Vector2.zero;
         transform.position = spawnPoint.position;
-        Debug.Log("adasdasd" + cameraSpawnPoint.position);
-        gameCamera.position = cameraSpawnPoint.position;
-
         faceRightState = true;
         OnDirectionChanged?.Invoke(faceRightState);
+
+        gameCamera.position = cameraSpawnPoint.position;
 
         // Notify observers to trigger gameRestart
         OnPlayerReset?.Invoke();
@@ -249,7 +262,8 @@ public class PlayerMovement : MonoBehaviour {
         // Reset scores & enemies 
         scoreText.text = "Score: 0";
         foreach (Transform eachChild in enemies.transform) {
-            eachChild.transform.localPosition = eachChild.GetComponent<EnemyMovement>().startPosition;
+            EnemyMovement enemy = eachChild.GetComponent<EnemyMovement>();
+            enemy.ResetGoomba();
         }
         jumpOverGoomba.score = 0;
         uiScreen.SetActive(false);
