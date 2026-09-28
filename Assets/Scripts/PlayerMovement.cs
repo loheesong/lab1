@@ -7,10 +7,13 @@ public class PlayerMovement : MonoBehaviour {
     private Rigidbody2D rb;
     private BoxCollider2D col;
 
+    [Header("Camera")]
+    public Transform gameCamera;
+    [SerializeField] private Transform cameraSpawnPoint;
+
     [Header("Layers")]
     [SerializeField] private LayerMask groundLayer;
 
-    [Header("Spawn Point")]
     [SerializeField] private Transform spawnPoint;
     // ---------------------------- MOVEMENT ----------------------------
     private Vector2 moveInput;
@@ -233,6 +236,8 @@ public class PlayerMovement : MonoBehaviour {
         alive = true;
         rb.linearVelocity = Vector2.zero;
         transform.position = spawnPoint.position;
+        Debug.Log("adasdasd" + cameraSpawnPoint.position);
+        gameCamera.position = cameraSpawnPoint.position;
 
         faceRightState = true;
         OnDirectionChanged?.Invoke(faceRightState);
