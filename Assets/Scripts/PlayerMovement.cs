@@ -13,6 +13,7 @@ public class PlayerMovement : MonoBehaviour {
 
     [Header("Layers")]
     [SerializeField] private LayerMask groundLayer;
+    readonly int collisionLayerMask = (1 << 3) | (1 << 6) | (1 << 7);
 
     [SerializeField] private Transform spawnPoint;
     // ---------------------------- MOVEMENT ----------------------------
