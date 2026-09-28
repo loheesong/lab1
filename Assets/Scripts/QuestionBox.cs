@@ -9,12 +9,6 @@ public class QuestionBoxController : MonoBehaviour {
 
     [Header("Coin Settings")]
     [SerializeField] private GameObject coinPrefab;
-    [SerializeField] private float coinBounceHeight = 1.8f;
-    [SerializeField] private float coinBounceDuration = 0.55f;
-
-    [Header("Audio")]
-    [SerializeField] private AudioSource audioSource;
-    [SerializeField] private AudioClip coinSound;
 
     [Header("Bounce Settings")]
     [SerializeField] private float bounceHeight = 0.25f;
@@ -53,10 +47,8 @@ public class QuestionBoxController : MonoBehaviour {
         spriteRenderer.sprite = disabledSprite;
 
         // spawn the animated coin
-        audioSource.PlayOneShot(coinSound);
         Vector3 spawnPos = transform.position + Vector3.up * 0.5f;
-        GameObject coin = Instantiate(coinPrefab, spawnPos, Quaternion.identity);
-        StartCoroutine(CoinBounceRoutine(coin, spawnPos));
+        Instantiate(coinPrefab, spawnPos, Quaternion.identity);
 
         // bounce box
         StartCoroutine(BounceRoutine());
@@ -84,29 +76,5 @@ public class QuestionBoxController : MonoBehaviour {
             yield return null;
         }
         transform.localPosition = originalLocalPos;
-    }
-
-    private IEnumerator CoinBounceRoutine(GameObject coin, Vector3 startPos) {
-        float half = coinBounceDuration / 2f;
-        float elapsed = 0f;
-        Vector3 peakPos = startPos + Vector3.up * coinBounceHeight;
-        // Coin arcs up
-        while (elapsed < half) {
-            if (coin == null) yield break;
-            coin.transform.position = Vector3.Lerp(startPos, peakPos, elapsed / half);
-            elapsed += Time.deltaTime;
-            yield return null;
-        }
-        coin.transform.position = peakPos;
-        // Coin falls back down
-        elapsed = 0f;
-        while (elapsed < half) {
-            if (coin == null) yield break;
-            coin.transform.position = Vector3.Lerp(peakPos, startPos, elapsed / half);
-            elapsed += Time.deltaTime;
-            yield return null;
-        }
-        // Destroy coin when it touches the box (looks like it went inside)
-        Destroy(coin);
     }
 }

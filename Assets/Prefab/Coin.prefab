@@ -12,6 +12,7 @@ GameObject:
   - component: {fileID: 5070105563417039605}
   - component: {fileID: 7126669653346704446}
   - component: {fileID: 6676468219057788643}
+  - component: {fileID: 3389318440079937365}
   m_Layer: 0
   m_Name: Coin
   m_TagString: Untagged
@@ -100,7 +101,7 @@ AudioSource:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 8216999861261487988}
-  m_Enabled: 0
+  m_Enabled: 1
   serializedVersion: 4
   OutputAudioMixerGroup: {fileID: 0}
   m_audioClip: {fileID: 0}
@@ -212,3 +213,18 @@ Animator:
   m_AllowConstantClipSamplingOptimization: 1
   m_KeepAnimatorStateOnDisable: 0
   m_WriteDefaultValuesOnDisable: 0
+--- !u!114 &3389318440079937365
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8216999861261487988}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fc135959d6fa648769732414c1846c6f, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::CoinController
+  bounceHeight: 1.8
+  bounceDuration: 0.55
+  coinAudioClip: {fileID: 8300000, guid: d885ffc842af744d89f7d595ffcc176a, type: 3}
