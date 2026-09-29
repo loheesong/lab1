@@ -84,7 +84,6 @@ public class GameManager : MonoBehaviour {
         ResetScore();
 
         // Reset Goombas
-
         foreach (Transform enemy in enemiesParent) {
             EnemyMovement em = enemy.GetComponent<EnemyMovement>();
             em.ResetGoomba();

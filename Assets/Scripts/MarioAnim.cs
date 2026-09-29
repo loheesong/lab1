@@ -11,17 +11,12 @@ public class MarioAnim : MonoBehaviour {
     private void Awake() {
         spriteRenderer = GetComponent<SpriteRenderer>();
         animator = GetComponent<Animator>();
-
-        if (playerMovement == null) {
-            playerMovement = GetComponentInParent<PlayerMovement>();
-        }
+        playerMovement = GetComponentInParent<PlayerMovement>();
     }
 
     private void Start() {
         // Sync initial state on game start
-        if (playerMovement != null) {
-            animator.SetBool("onGround", playerMovement.IsGrounded);
-        }
+        animator.SetBool("onGround", playerMovement.IsGrounded);
     }
 
     // SUBSCRIPTION LIFECYCLE
@@ -49,8 +44,7 @@ public class MarioAnim : MonoBehaviour {
 
     // FRAME UPDATE (Continuous Parameters)
     private void Update() {
-        if (playerMovement == null) return;
-
+        if (!playerMovement.alive) return;
         // Continuously pass speed using the string name
         animator.SetFloat("xSpeed", playerMovement.CurrentSpeed);
     }
@@ -73,6 +67,8 @@ public class MarioAnim : MonoBehaviour {
         animator.SetTrigger("gameRestart");
     }
     private void HandlePlayerDeath() {
+        animator.SetBool("onGround", true);
+        animator.SetFloat("xSpeed", 0f);
         animator.Play("mario-die");
     }
 }

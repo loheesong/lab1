@@ -121,7 +121,6 @@ public class PlayerMovement : MonoBehaviour {
         }
     }
     private void GatherInput() {
-        // Using legacy raw axis polling for instantaneous response
         moveInput.x = Input.GetAxisRaw("Horizontal");
         moveInput.y = Input.GetAxisRaw("Vertical");
     }
