@@ -54,6 +54,11 @@ public class QuestionBoxController : MonoBehaviour {
         StartCoroutine(BounceRoutine());
     }
 
+    public void ResetQuestionBox() {
+        isHit = false;
+        animator.enabled = true;
+    }
+
     private IEnumerator BounceRoutine() {
         float half = bounceDuration / 2f;
         float elapsed = 0f;

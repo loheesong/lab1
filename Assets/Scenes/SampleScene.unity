@@ -508,7 +508,7 @@ GameObject:
   - component: {fileID: 514424292}
   - component: {fileID: 514424291}
   m_Layer: 5
-  m_Name: Score Text
+  m_Name: GameScore
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -938,10 +938,10 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 320071028}
-        m_TargetAssemblyTypeName: PlayerMovement, Assembly-CSharp
-        m_MethodName: RestartButtonCallback
-        m_Mode: 3
+      - m_Target: {fileID: 1174111996}
+        m_TargetAssemblyTypeName: GameManager, Assembly-CSharp
+        m_MethodName: RestartGame
+        m_Mode: 1
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
           m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
@@ -1403,7 +1403,7 @@ GameObject:
   - component: {fileID: 986594961}
   - component: {fileID: 986594960}
   m_Layer: 5
-  m_Name: Score Text (1)
+  m_Name: EndGameScore
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -1593,9 +1593,11 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::GameManager
   currentState: 0
   score: 0
-  scoreText: {fileID: 514424291}
+  inGameScoreText: {fileID: 514424291}
+  endGameScoreText: {fileID: 986594960}
   gameOverUI: {fileID: 1651235905}
   player: {fileID: 320071028}
+  obstaclesParent: {fileID: 188606429}
   enemiesParent: {fileID: 596660624}
 --- !u!4 &1174111997
 Transform:

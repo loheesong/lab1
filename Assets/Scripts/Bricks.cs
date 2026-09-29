@@ -5,6 +5,7 @@ public class BrickController : MonoBehaviour {
     [Header("Variant Settings")]
     [SerializeField] private bool hasCoin = false;
     [SerializeField] private int coinCount = 1; // Can be 1 for single-coin brick
+    private int currCoinCount; // Can be 1 for single-coin brick
 
     [Header("Spawn & Prefabs")]
     [SerializeField] private GameObject coinPrefab;
@@ -23,6 +24,8 @@ public class BrickController : MonoBehaviour {
     void Awake() {
         audioSource = GetComponent<AudioSource>();
         originalLocalPos = transform.localPosition;
+
+        currCoinCount = coinCount;
     }
 
     void OnCollisionEnter2D(Collision2D collision) {
@@ -44,8 +47,8 @@ public class BrickController : MonoBehaviour {
 
     private void OnHit() {
         // Variant 1: Contains a coin
-        if (hasCoin && coinCount > 0) {
-            coinCount--;
+        if (hasCoin && currCoinCount > 0) {
+            currCoinCount--;
 
             Vector3 spawnPos = transform.position + Vector3.up * 0.5f;
             Instantiate(coinPrefab, spawnPos, Quaternion.identity);
@@ -56,6 +59,10 @@ public class BrickController : MonoBehaviour {
 
         // Brick bounces once and does not break
         StartCoroutine(BounceRoutine());
+    }
+
+    public void ResetBrick() {
+        currCoinCount = coinCount;
     }
 
     private IEnumerator BounceRoutine() {

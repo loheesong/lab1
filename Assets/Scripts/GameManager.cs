@@ -22,11 +22,13 @@ public class GameManager : MonoBehaviour {
     public event Action<GameState> OnStateChanged;
 
     [Header("UI References")]
-    [SerializeField] private TextMeshProUGUI scoreText;
+    [SerializeField] private TextMeshProUGUI inGameScoreText;
+    [SerializeField] private TextMeshProUGUI endGameScoreText;
     [SerializeField] private GameObject gameOverUI;
 
     [Header("Game References")]
     [SerializeField] private PlayerMovement player;
+    [SerializeField] private Transform obstaclesParent;
     [SerializeField] private Transform enemiesParent;
 
     private void Awake() {
@@ -74,8 +76,19 @@ public class GameManager : MonoBehaviour {
     }
 
     private void UpdateScoreUI() {
-        if (scoreText != null) {
-            scoreText.text = "Score: " + score.ToString();
+        inGameScoreText.text = "Score: " + score.ToString();
+        endGameScoreText.text = "Score: " + score.ToString();
+    }
+
+    private void ResetObstacles() {
+        foreach (Transform child in obstaclesParent) {
+            if (child.TryGetComponent<BrickController>(out BrickController brick)) {
+                brick.ResetBrick();
+                continue;
+            }
+
+            QuestionBoxController qBox = child.GetComponentInChildren<QuestionBoxController>();
+            if (qBox != null) qBox.ResetQuestionBox();
         }
     }
 
@@ -88,7 +101,7 @@ public class GameManager : MonoBehaviour {
             EnemyMovement em = enemy.GetComponent<EnemyMovement>();
             em.ResetGoomba();
         }
-
+        ResetObstacles();
         // Reset Player
         player.ResetPlayer();
 
