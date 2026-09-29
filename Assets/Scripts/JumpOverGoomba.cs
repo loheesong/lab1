@@ -5,11 +5,7 @@ using TMPro;
 
 public class JumpOverGoomba : MonoBehaviour {
     public Transform enemyLocation;
-    public TextMeshProUGUI scoreText;
     private bool onGroundState;
-
-    [System.NonSerialized]
-    public int score = 0; // we don't want this to show up in the inspector
 
     private bool countScoreState = false;
     public Vector3 boxSize;
@@ -37,8 +33,7 @@ public class JumpOverGoomba : MonoBehaviour {
         if (!onGroundState && countScoreState) {
             if (Mathf.Abs(transform.position.x - enemyLocation.position.x) < 0.5f) {
                 countScoreState = false;
-                score++;
-                scoreText.text = "Score: " + score.ToString();
+                GameManager.Instance.AddScore(1);
             }
         }
     }

@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using UnityEngine;
 
 public class EnemyMovement : MonoBehaviour {
-
     private float originalX;
     private float maxOffset = 5.0f;
     private float enemyPatroltime = 2.0f;
@@ -32,12 +31,10 @@ public class EnemyMovement : MonoBehaviour {
         enemyBody.MovePosition(enemyBody.position + velocity * Time.fixedDeltaTime);
     }
 
-    // note that this is Update(), which still works but not ideal. See below.
-    void Update() {
-
-    }
-
     void FixedUpdate() {
+        // Stop moving if the game is over or GameManager is not in Playing state
+        if (GameManager.Instance.CurrentState != GameState.Playing) return;
+
         if (enemyBody.position.x > originalX + maxOffset) {
             moveRight = -1;
             ComputeVelocity();

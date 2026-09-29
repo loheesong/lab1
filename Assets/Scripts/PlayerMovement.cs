@@ -1,5 +1,4 @@
 using System;
-using System.Collections.Generic;
 using UnityEngine;
 using TMPro;
 
@@ -50,21 +49,13 @@ public class PlayerMovement : MonoBehaviour {
     public event Action<bool> OnGroundedChanged;    // when landing or taking off
     public event Action<bool> OnDirectionChanged;   // when changing left/right
     public event Action OnPlayerReset;              // when ResetGame() is called
-    public event Action OnPlayerDeath;              // on death (for next sections)
+    public event Action OnPlayerDeath;              // on death
     public float CurrentSpeed => Mathf.Abs(rb.linearVelocity.x);
     public bool IsGrounded => isGrounded;
 
     [Header("Death Settings")]
     public float deathImpulse = 5f;
     [System.NonSerialized] public bool alive = true;
-
-    // ---------------------------- UI ----------------------------
-    public TextMeshProUGUI scoreText;
-    [SerializeField] private GameObject uiScreen;
-
-    // ---------------------------- ENEMIES ----------------------------
-    public GameObject enemies;
-    public JumpOverGoomba jumpOverGoomba;
 
     private void Awake() {
         rb = GetComponent<Rigidbody2D>();
@@ -199,13 +190,6 @@ public class PlayerMovement : MonoBehaviour {
             coyoteTimeCounter -= Time.deltaTime;
         }
     }
-
-    private void OnDrawGizmosSelected() {
-        if (col == null) return;
-        Gizmos.color = Color.green;
-        Bounds b = col.bounds;
-        Gizmos.DrawWireCube(new Vector2(b.center.x, b.min.y), new Vector2(b.size.x - 0.04f, 0.08f));
-    }
     // ---------------------------- ANIMATION ----------------------------
     private void flipSprite() {
         // toggle state
@@ -227,45 +211,22 @@ public class PlayerMovement : MonoBehaviour {
             OnDirectionChanged?.Invoke(faceRightState);
         }
     }
-    // Called by an Animation Event at the start of mario-die
     public void PlayDeathImpulse() {
         rb.linearVelocity = new Vector2(0f, deathImpulse);
     }
-    // Called by an Animation Event at the end of mario-die
     public void GameOverScene() {
-        Time.timeScale = 0.0f; // Stop time only after the death animation finishes
-        uiScreen.SetActive(true);
+        GameManager.Instance.SetGameState(GameState.GameOver);
     }
     // ---------------------------- UI ----------------------------
-    public void RestartButtonCallback(int input) {
-        Debug.Log("Restart!");
-        // reset everything
-        ResetGame();
-        // resume time
-        Time.timeScale = 1.0f;
-    }
-
-    private void ResetGame() {
-        // player related 
+    public void ResetPlayer() {
         alive = true;
         canDoubleJump = true;
         rb.linearVelocity = Vector2.zero;
         transform.position = spawnPoint.position;
         faceRightState = true;
         OnDirectionChanged?.Invoke(faceRightState);
-
         gameCamera.position = cameraSpawnPoint.position;
-
-        // Notify observers to trigger gameRestart
+        // Notify observers (e.g. animation reset)
         OnPlayerReset?.Invoke();
-
-        // Reset scores & enemies 
-        scoreText.text = "Score: 0";
-        foreach (Transform eachChild in enemies.transform) {
-            EnemyMovement enemy = eachChild.GetComponent<EnemyMovement>();
-            enemy.ResetGoomba();
-        }
-        jumpOverGoomba.score = 0;
-        uiScreen.SetActive(false);
     }
 }
