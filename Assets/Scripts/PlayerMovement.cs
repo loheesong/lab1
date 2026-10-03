@@ -105,6 +105,18 @@ public class PlayerMovement : MonoBehaviour {
         }
     }
 
+    // ---------------------------- UNITYEVENT ADAPTERS ----------------------------
+    public void MoveCheck(int value) {
+        if (!alive) return;
+        moveInput = new Vector2(value, 0f);
+    }
+
+    public void Jump() {
+        if (!alive) return;
+        isJumpHeld = true;
+        ExecuteJump();
+    }
+
     // ---------------------------- MOVEMENT ----------------------------
     private void CheckCollisions() {
         Bounds bounds = col.bounds;

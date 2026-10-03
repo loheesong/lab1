@@ -24,6 +24,8 @@ public class CoinController : MonoBehaviour {
     }
 
     private IEnumerator BounceRoutine() {
+        GameManager.Instance.AddScore(1);
+
         float half = bounceDuration / 2f;
         float elapsed = 0f;
         Vector3 peakPos = startPos + Vector3.up * bounceHeight;
