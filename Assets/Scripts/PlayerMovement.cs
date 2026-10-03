@@ -51,6 +51,10 @@ public class PlayerMovement : MonoBehaviour {
     public event Action<bool> OnDirectionChanged;   // when changing left/right
     public event Action OnPlayerReset;              // when ResetGame() is called
     public event Action OnPlayerDeath;              // on death
+    public event Action OnEnemyStomped;
+    [Header("Stomp Settings")]
+    [SerializeField] private float stompBounceVelocity = 15f;
+
     public float CurrentSpeed => Mathf.Abs(rb.linearVelocity.x);
     public bool IsGrounded => isGrounded;
 
@@ -95,9 +99,18 @@ public class PlayerMovement : MonoBehaviour {
 
     void OnTriggerEnter2D(Collider2D other) {
         if (other.gameObject.CompareTag("Enemy") && alive) {
-            Debug.Log("Collided with goomba!");
+            if (other.TryGetComponent<EnemyMovement>(out var enemy)) {
+                if (enemy.IsDead) return;
 
-            // process death 
+                // Check if Mario is stomping Goomba from above:
+                if (transform.position.y > other.transform.position.y + 0.25f && rb.linearVelocity.y <= 1.5f) {
+                    Debug.Log("Goomba stomped!");
+                    enemy.Stomp();
+                    rb.linearVelocity = new Vector2(rb.linearVelocity.x, stompBounceVelocity); // short hop after stomping
+                    OnEnemyStomped?.Invoke();
+                    return;
+                }
+            }
             alive = false;
             rb.linearVelocity = Vector2.zero;
             OnPlayerDeath?.Invoke();

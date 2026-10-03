@@ -104,7 +104,7 @@ Rigidbody2D:
   m_GameObject: {fileID: 8614887253851320214}
   m_BodyType: 1
   m_Simulated: 1
-  m_UseFullKinematicContacts: 0
+  m_UseFullKinematicContacts: 1
   m_UseAutoMass: 0
   m_Mass: 1
   m_LinearDamping: 0
@@ -179,4 +179,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 389cb2ade4724411cbe7a225c1bad761, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::EnemyMovement
-  startPosition: {x: 0, y: 0, z: 0}
+  defaultSprite: {fileID: 21300000, guid: 7eb68ac47e5fe4bbca37c767951ce034, type: 3}
+  flatSprite: {fileID: 21300004, guid: 7eb68ac47e5fe4bbca37c767951ce034, type: 3}
+  stompSound: {fileID: 8300000, guid: d84415726495b4d46b5a557ed2a97cfa, type: 3}
