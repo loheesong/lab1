@@ -6,20 +6,11 @@ public class CoinController : MonoBehaviour {
     [SerializeField] private float bounceHeight = 1.8f;
     [SerializeField] private float bounceDuration = 0.55f;
 
-    [Header("Audio")]
-    [SerializeField] private AudioClip coinAudioClip;
-    private AudioSource audioSource;
-
     private Vector3 startPos;
-
-    void Awake() {
-        audioSource = GetComponent<AudioSource>();
-        audioSource.enabled = true;
-    }
 
     void Start() {
         startPos = transform.position;
-        audioSource.PlayOneShot(coinAudioClip);
+        AudioManager.Instance.PlayCoinSound();
         StartCoroutine(BounceRoutine());
     }
 

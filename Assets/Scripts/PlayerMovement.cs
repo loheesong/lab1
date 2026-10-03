@@ -45,6 +45,7 @@ public class PlayerMovement : MonoBehaviour {
     // ---------------------------- ANIMATION ----------------------------
     private bool faceRightState = true;
 
+    public event Action OnPlayerJump;
     public event Action OnSkid;                     // on rapid direction change
     public event Action<bool> OnGroundedChanged;    // when landing or taking off
     public event Action<bool> OnDirectionChanged;   // when changing left/right
@@ -171,11 +172,13 @@ public class PlayerMovement : MonoBehaviour {
             coyoteTimeCounter = 0f;
             isGrounded = false;
             OnGroundedChanged?.Invoke(false);
+            OnPlayerJump?.Invoke(); // jump audio
         }
         // Mid-air double jump
         else if (canDoubleJump) {
             rb.linearVelocityY = initialJumpVelocity;
             canDoubleJump = false;
+            OnPlayerJump?.Invoke();
         }
     }
 
