@@ -1,6 +1,6 @@
 using System;
 using UnityEngine;
-using TMPro;
+using UnityEngine.InputSystem;
 
 public class PlayerMovement : MonoBehaviour {
     private Rigidbody2D rb;
@@ -16,6 +16,7 @@ public class PlayerMovement : MonoBehaviour {
     [SerializeField] private Transform spawnPoint;
     // ---------------------------- MOVEMENT ----------------------------
     private Vector2 moveInput;
+    private bool isJumpHeld = false;
 
     [Header("Horizontal Movement")]
     [SerializeField] private float moveSpeed = 9f;
@@ -77,12 +78,8 @@ public class PlayerMovement : MonoBehaviour {
     // Update is called once per frame
     void Update() {
         if (!alive) return;
-
-        GatherInput();
         CheckCollisions();
         UpdateTimers();
-        HandleJump();
-
         flipSprite();
     }
 
@@ -120,9 +117,14 @@ public class PlayerMovement : MonoBehaviour {
             OnGroundedChanged?.Invoke(isGrounded);
         }
     }
-    private void GatherInput() {
-        moveInput.x = Input.GetAxisRaw("Horizontal");
-        moveInput.y = Input.GetAxisRaw("Vertical");
+    public void OnMove(InputValue value) {
+        if (value.Get() is Vector2 vec) {
+            moveInput = vec;
+        } else if (value.Get() is float f) {
+            moveInput = new Vector2(f, 0f);
+        } else {
+            moveInput = Vector2.zero;
+        }
     }
 
     // horizontal related
@@ -143,21 +145,33 @@ public class PlayerMovement : MonoBehaviour {
     }
 
     // vertical related 
-    private void HandleJump() {
-        if (Input.GetButtonDown("Jump")) {
-            // First jump (grounded or within coyote time)
-            if (coyoteTimeCounter > 0f) {
-                rb.linearVelocityY = initialJumpVelocity;
-                coyoteTimeCounter = 0f;
-                isGrounded = false;
-                OnGroundedChanged?.Invoke(false);
-            }
-            // Mid-air double jump
-            else if (canDoubleJump) {
-                rb.linearVelocityY = initialJumpVelocity;
-                canDoubleJump = false; // Consume the double jump
-            }
+    // Triggered automatically by PlayerInput when 'jump' is pressed or released
+    public void OnJump(InputValue value) {
+        if (!alive) return;
+
+        // Track button hold status (true on press, false on release)
+        isJumpHeld = value.isPressed;
+        if (value.isPressed) ExecuteJump();
+    }
+
+    private void ExecuteJump() {
+        // First jump (grounded or within coyote time)
+        if (coyoteTimeCounter > 0f) {
+            rb.linearVelocityY = initialJumpVelocity;
+            coyoteTimeCounter = 0f;
+            isGrounded = false;
+            OnGroundedChanged?.Invoke(false);
         }
+        // Mid-air double jump
+        else if (canDoubleJump) {
+            rb.linearVelocityY = initialJumpVelocity;
+            canDoubleJump = false;
+        }
+    }
+
+    public void OnJumphold(InputValue value) {
+        if (!alive) return;
+        Debug.Log("Jump Hold triggered!");
     }
     private void CalculateJumpVariables() {
         gravityStrength = 2f * jumpHeight / Mathf.Pow(timeToJumpApex, 2f);
@@ -171,7 +185,7 @@ public class PlayerMovement : MonoBehaviour {
             currentGravity *= downwardMovementMultiplier;
         }
         // Condition 2: Early button release -> Cut jump short
-        else if (rb.linearVelocity.y > 0f && !Input.GetButton("Jump")) {
+        else if (rb.linearVelocity.y > 0f && !isJumpHeld) {
             currentGravity *= jumpCutMultiplier;
         }
         // Condition 3: At the crest of the arc -> Float briefly
@@ -191,21 +205,15 @@ public class PlayerMovement : MonoBehaviour {
     }
     // ---------------------------- ANIMATION ----------------------------
     private void flipSprite() {
-        // toggle state
-        if (Input.GetKeyDown("a") && faceRightState) {
-            // skid
-            if (isGrounded && rb.linearVelocity.x > 0.1f) {
-                OnSkid?.Invoke();
-            }
+        // Facing left when moving negative
+        if (moveInput.x < -0.01f && faceRightState) {
+            if (isGrounded && rb.linearVelocity.x > 0.1f) OnSkid?.Invoke(); // skid
             faceRightState = false;
             OnDirectionChanged?.Invoke(faceRightState);
         }
-
-        if (Input.GetKeyDown("d") && !faceRightState) {
-            // skid
-            if (isGrounded && rb.linearVelocity.x < -0.1f) {
-                OnSkid?.Invoke();
-            }
+        // Facing right when moving positive
+        else if (moveInput.x > 0.01f && !faceRightState) {
+            if (isGrounded && rb.linearVelocity.x < -0.1f) OnSkid?.Invoke(); // skid
             faceRightState = true;
             OnDirectionChanged?.Invoke(faceRightState);
         }
@@ -220,6 +228,9 @@ public class PlayerMovement : MonoBehaviour {
     public void ResetPlayer() {
         alive = true;
         canDoubleJump = true;
+        isJumpHeld = false;
+
+        moveInput = Vector2.zero;
         rb.linearVelocity = Vector2.zero;
         transform.position = spawnPoint.position;
         faceRightState = true;
