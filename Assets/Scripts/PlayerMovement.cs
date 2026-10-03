@@ -43,7 +43,6 @@ public class PlayerMovement : MonoBehaviour {
     private float coyoteTimeCounter;
 
     // ---------------------------- ANIMATION ----------------------------
-    private SpriteRenderer marioSprite;
     private bool faceRightState = true;
 
     public event Action OnSkid;                     // on rapid direction change
@@ -69,7 +68,6 @@ public class PlayerMovement : MonoBehaviour {
     void Start() {
         // Set to be 30 FPS
         Application.targetFrameRate = 30;
-        marioSprite = GetComponent<SpriteRenderer>();
 
         // Set Mario to spawn point
         transform.position = spawnPoint.position;
@@ -122,7 +120,7 @@ public class PlayerMovement : MonoBehaviour {
         Bounds bounds = col.bounds;
         // Make the check box slightly narrower than the player so walls aren't flagged as floors
         Vector2 checkSize = new Vector2(bounds.size.x - 0.04f, 0.08f);
-        bool currentlyGrounded = Physics2D.OverlapBox(new Vector2(bounds.center.x, bounds.min.y), checkSize, 0f, groundLayer);
+        bool currentlyGrounded = rb.linearVelocity.y <= 0.01f && Physics2D.OverlapBox(new Vector2(bounds.center.x, bounds.min.y), checkSize, 0f, groundLayer);
 
         if (currentlyGrounded != isGrounded) {
             isGrounded = currentlyGrounded;
