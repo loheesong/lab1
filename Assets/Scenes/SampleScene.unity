@@ -572,7 +572,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::MarioAudio
   jumpClip: {fileID: 8300000, guid: bc5ca5e0703c54692a186434e1149ccd, type: 3}
-  deathClip: {fileID: 8300000, guid: 96f7a44168f114e6ba76d5c1bef36f86, type: 3}
+  deathClip: {fileID: 8300000, guid: 53eb2e3c8945940e0b54e2630d46dcea, type: 3}
 --- !u!4 &371188765 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 5461398442059600625, guid: d42f984ff683c46869f9075293b5f694, type: 3}

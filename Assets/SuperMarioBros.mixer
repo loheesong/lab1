@@ -91,6 +91,7 @@ AudioMixerGroupController:
   m_Send: 00000000000000000000000000000000
   m_Effects:
   - {fileID: 7707865580465112809}
+  - {fileID: 3337267449521829804}
   m_UserColorIndex: 0
   m_Mute: 0
   m_Solo: 0
@@ -204,6 +205,7 @@ AudioMixerSnapshotController:
   m_FloatValues:
     1fc8af60e274f4a0290f315f557198fd: 0.05
     991eab21ae3274c3991abb15a5c40317: 0.1
+    0ab78d04bb5374ae3b5fc3342d8dc7d9: 0
     bd26f966e070a44b79a6fa67d294cb40: -65
     59f93cb86979c404a838e9be8ba2a684: 0
     2cbed68acecb64f45bd15c5405c22959: 5.8
@@ -224,7 +226,6 @@ AudioMixerGroupController:
   m_Send: 00000000000000000000000000000000
   m_Effects:
   - {fileID: -8143587919839278559}
-  - {fileID: 8087426014630577919}
   m_UserColorIndex: 0
   m_Mute: 0
   m_Solo: 0
@@ -269,6 +270,20 @@ AudioMixerEffectController:
   - m_ParameterName: LF Reference
     m_GUID: 63d5da88477154ee2a08206b12d32c7d
   m_SendTarget: {fileID: 0}
+  m_EnableWetMix: 0
+  m_Bypass: 0
+--- !u!244 &3337267449521829804
+AudioMixerEffectController:
+  m_ObjectHideFlags: 3
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_Name: 
+  m_EffectID: 74321811589064d9597f9edd6f6ea2b5
+  m_EffectName: Send
+  m_MixLevel: 0ab78d04bb5374ae3b5fc3342d8dc7d9
+  m_Parameters: []
+  m_SendTarget: {fileID: -8406762079980187347}
   m_EnableWetMix: 0
   m_Bypass: 0
 --- !u!244 &5335859387032543483
@@ -332,20 +347,6 @@ AudioMixerEffectController:
   m_MixLevel: fa6d04a93a0d945cea71129b1bf41c05
   m_Parameters: []
   m_SendTarget: {fileID: 0}
-  m_EnableWetMix: 0
-  m_Bypass: 0
---- !u!244 &8087426014630577919
-AudioMixerEffectController:
-  m_ObjectHideFlags: 3
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_Name: 
-  m_EffectID: b11fd44de90944f7c89d466b8ea63ef1
-  m_EffectName: Send
-  m_MixLevel: 59f93cb86979c404a838e9be8ba2a684
-  m_Parameters: []
-  m_SendTarget: {fileID: -8406762079980187347}
   m_EnableWetMix: 0
   m_Bypass: 0
 --- !u!243 &8811256931394732291
