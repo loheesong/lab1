@@ -1,5 +1,6 @@
 using System;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 public enum GameState {
     Playing,
@@ -16,6 +17,8 @@ public class GameManager : MonoBehaviour {
     [Header("Score")]
     [SerializeField] private int score = 0;
     public int Score => score;
+    [SerializeField] private IntVariable highScoreSO;
+    public int HighScore => highScoreSO.Value;
 
     public event Action<int> OnScoreChanged;
     public event Action<GameState> OnStateChanged;
@@ -31,11 +34,13 @@ public class GameManager : MonoBehaviour {
             return;
         }
         Instance = this;
+        DontDestroyOnLoad(gameObject);
     }
 
     private void Start() {
         SetGameState(GameState.Playing);
         OnScoreChanged?.Invoke(score);
+        SceneManager.activeSceneChanged += SceneSetup;
     }
 
     public void SetGameState(GameState newState) {
@@ -58,6 +63,10 @@ public class GameManager : MonoBehaviour {
 
         score += points;
         OnScoreChanged?.Invoke(score);
+
+        if (score > highScoreSO.Value) {
+            highScoreSO.SetValue(score);
+        }
     }
 
     public void ResetScore() {
@@ -85,5 +94,15 @@ public class GameManager : MonoBehaviour {
         // Notify EnemyManager and other observers to reset
         OnGameRestart?.Invoke();
         SetGameState(GameState.Playing);
+    }
+
+    // change scene stuff 
+    private void OnDestroy() {
+        SceneManager.activeSceneChanged -= SceneSetup;
+    }
+
+    public void SceneSetup(Scene current, Scene next) {
+        SetGameState(GameState.Playing);
+        OnScoreChanged?.Invoke(score);
     }
 }
