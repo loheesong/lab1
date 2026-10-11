@@ -13,6 +13,8 @@ public class AudioManager : MonoBehaviour {
     [Header("Common World SFX")]
     [SerializeField] private AudioClip coinClip;
     [SerializeField] private AudioClip brickBumpClip;
+    [SerializeField] private AudioClip powerupAppearClip;
+    [SerializeField] private AudioClip powerupCollectClip;
 
     private void Awake() {
         // Singleton pattern
@@ -57,4 +59,6 @@ public class AudioManager : MonoBehaviour {
 
     public void PlayCoinSound() => PlaySFX(coinClip);
     public void PlayBrickBumpSound() => PlaySFX(brickBumpClip);
+    public void PlayPowerupAppearSound() => PlaySFX(powerupAppearClip);
+    public void PlayPowerupSound() => PlaySFX(powerupCollectClip);
 }

@@ -208,5 +208,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::QuestionBoxController
   disabledSprite: {fileID: 21300060, guid: 82bc45c4496284f4c823d1b837f65ec4, type: 3}
   coinPrefab: {fileID: 8216999861261487988, guid: 57ec735906fc1405d90e4200c3663043, type: 3}
+  mushroomPrefab: {fileID: 6351139930438840808, guid: 5f9a1e916a4fc43c0b83b3e21709150c, type: 3}
+  spawnsMushroom: 0
   bounceHeight: 0.75
   bounceDuration: 0.25
