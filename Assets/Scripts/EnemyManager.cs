@@ -3,17 +3,14 @@ using UnityEngine;
 public class EnemyManager : MonoBehaviour {
     [SerializeField] private Transform enemiesParent;
     private void Start() {
-        GameManager.Instance.OnStateChanged += HandleStateChanged;
+        GameManager.Instance.OnGameRestart += ResetAllEnemies;
         SubscribeToEnemies();
     }
     private void OnDestroy() {
-        GameManager.Instance.OnStateChanged -= HandleStateChanged;
+        GameManager.Instance.OnGameRestart -= ResetAllEnemies;
         UnsubscribeFromEnemies();
     }
 
-    private void HandleStateChanged(GameState state) {
-        if (state == GameState.Playing) ResetAllEnemies();
-    }
     private void SubscribeToEnemies() {
         foreach (Transform child in enemiesParent) {
             if (child.TryGetComponent<EnemyMovement>(out var enemy)) enemy.OnStomped += HandleEnemyStomped;

@@ -12,5 +12,4 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 3977edc97b50644eeae88328c53f08d6, type: 3}
   m_Name: HighScoreSO
   m_EditorClassIdentifier: Assembly-CSharp::IntVariable
-  playerPrefsKey: HighScore
-  value: 0
+  value: 2

@@ -5,8 +5,8 @@ public class CoinController : MonoBehaviour {
     [Header("Bounce Settings")]
     [SerializeField] private float bounceHeight = 1.8f;
     [SerializeField] private float bounceDuration = 0.55f;
-
-    private Vector3 startPos;
+    [Header("Score")]
+    [SerializeField] private int points = 1; private Vector3 startPos;
 
     void Start() {
         startPos = transform.position;
@@ -15,7 +15,7 @@ public class CoinController : MonoBehaviour {
     }
 
     private IEnumerator BounceRoutine() {
-        GameManager.Instance.AddScore(1);
+        GameManager.Instance.AddScore(points);
 
         float half = bounceDuration / 2f;
         float elapsed = 0f;

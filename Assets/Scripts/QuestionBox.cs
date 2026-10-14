@@ -10,7 +10,8 @@ public class QuestionBoxController : MonoBehaviour {
     [Header("Powerup Spawning")]
     [SerializeField] private GameObject coinPrefab;
     [SerializeField] private GameObject mushroomPrefab;
-    [SerializeField] private bool spawnsMushroom = false;
+    [SerializeField] private GameObject starPrefab;
+    [SerializeField] private PowerupType spawnType = PowerupType.Coin;
 
     [Header("Bounce Settings")]
     [SerializeField] private float bounceHeight = 0.25f;
@@ -25,6 +26,12 @@ public class QuestionBoxController : MonoBehaviour {
         originalLocalPos = transform.localPosition;
     }
 
+    void Start() {
+        GameManager.Instance.OnGameRestart += ResetQuestionBox;
+    }
+    void OnDestroy() {
+        GameManager.Instance.OnGameRestart -= ResetQuestionBox;
+    }
     void OnCollisionEnter2D(Collision2D collision) {
         // if already disabled, do nothing (no bounce, no sound, no spawn)
         if (isHit) return;
@@ -49,12 +56,13 @@ public class QuestionBoxController : MonoBehaviour {
         spriteRenderer.sprite = disabledSprite;
 
         // spawn the animated coin
-        Vector3 spawnPos = transform.position + (spawnsMushroom ? Vector3.up * 1.0f : Vector3.up * 0.5f);
-        if (spawnsMushroom) {
-            Instantiate(mushroomPrefab, spawnPos, Quaternion.identity);
-        } else {
-            Instantiate(coinPrefab, spawnPos, Quaternion.identity);
-        }
+        GameObject prefab = spawnType switch {
+            PowerupType.MagicMushroom => mushroomPrefab,
+            PowerupType.StarMan => starPrefab,
+            _ => coinPrefab,
+        };
+        float yOffset = spawnType == PowerupType.MagicMushroom ? 1.0f : 0.5f;
+        Instantiate(prefab, transform.position + Vector3.up * yOffset, Quaternion.identity);
 
         StartCoroutine(BounceRoutine());
     }

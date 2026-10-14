@@ -4,7 +4,8 @@ using UnityEngine.SceneManagement;
 
 public enum GameState {
     Playing,
-    GameOver
+    GameOver,
+    Paused
 }
 
 public class GameManager : MonoBehaviour {
@@ -23,10 +24,6 @@ public class GameManager : MonoBehaviour {
     public event Action<int> OnScoreChanged;
     public event Action<GameState> OnStateChanged;
     public event Action OnGameRestart;
-
-    [Header("Game References")]
-    [SerializeField] private PlayerMovement player;
-    [SerializeField] private Transform obstaclesParent;
 
     private void Awake() {
         if (Instance != null && Instance != this) {
@@ -52,10 +49,29 @@ public class GameManager : MonoBehaviour {
                 break;
 
             case GameState.GameOver:
+            case GameState.Paused:
                 Time.timeScale = 0.0f;
                 break;
         }
         OnStateChanged?.Invoke(currentState);
+    }
+    public void TogglePause() {
+        if (currentState == GameState.GameOver) return;
+
+        if (currentState == GameState.Playing) {
+            AudioManager.Instance.PauseMusic();
+            SetGameState(GameState.Paused);
+        } else {
+            AudioManager.Instance.ResumeMusic();
+            SetGameState(GameState.Playing);
+        }
+    }
+
+    public void ReturnToMainMenu() {
+        Time.timeScale = 1.0f;
+        Destroy(AudioManager.Instance.gameObject);
+        Destroy(gameObject);
+        SceneManager.LoadScene("MainMenu");
     }
 
     public void AddScore(int points) {
@@ -74,23 +90,9 @@ public class GameManager : MonoBehaviour {
         OnScoreChanged?.Invoke(score);
     }
 
-    private void ResetObstacles() {
-        foreach (Transform child in obstaclesParent) {
-            if (child.TryGetComponent<BrickController>(out BrickController brick)) {
-                brick.ResetBrick();
-                continue;
-            }
-
-            QuestionBoxController qBox = child.GetComponentInChildren<QuestionBoxController>();
-            if (qBox != null) qBox.ResetQuestionBox();
-        }
-    }
-
     // Called by the Restart Button
     public void RestartGame() {
         ResetScore();
-        ResetObstacles();
-        player.ResetPlayer();
         // Notify EnemyManager and other observers to reset
         OnGameRestart?.Invoke();
         SetGameState(GameState.Playing);
@@ -99,6 +101,7 @@ public class GameManager : MonoBehaviour {
     // change scene stuff 
     private void OnDestroy() {
         SceneManager.activeSceneChanged -= SceneSetup;
+        if (Instance == this) Instance = null;
     }
 
     public void SceneSetup(Scene current, Scene next) {

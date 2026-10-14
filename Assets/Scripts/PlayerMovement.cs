@@ -76,6 +76,7 @@ public class PlayerMovement : MonoBehaviour {
 
         // Set Mario to spawn point
         transform.position = spawnPoint.position;
+        GameManager.Instance.OnGameRestart += ResetPlayer;
     }
 
     // Update is called once per frame
@@ -179,6 +180,8 @@ public class PlayerMovement : MonoBehaviour {
     }
 
     private void ExecuteJump() {
+        if (GameManager.Instance.CurrentState != GameState.Playing) return;
+
         // First jump (grounded or within coyote time)
         if (coyoteTimeCounter > 0f) {
             rb.linearVelocityY = initialJumpVelocity;
@@ -264,5 +267,8 @@ public class PlayerMovement : MonoBehaviour {
         gameCamera.position = cameraSpawnPoint.position;
         // Notify observers (e.g. animation reset)
         OnPlayerReset?.Invoke();
+    }
+    void OnDestroy() {
+        GameManager.Instance.OnGameRestart -= ResetPlayer;
     }
 }

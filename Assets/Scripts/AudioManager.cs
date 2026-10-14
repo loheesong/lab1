@@ -9,6 +9,7 @@ public class AudioManager : MonoBehaviour {
 
     [Header("BGM Clips")]
     [SerializeField] private AudioClip overworldBgm;
+    [SerializeField] private AudioClip pauseClip;
 
     [Header("Common World SFX")]
     [SerializeField] private AudioClip coinClip;
@@ -23,12 +24,15 @@ public class AudioManager : MonoBehaviour {
             return;
         }
         Instance = this;
+        DontDestroyOnLoad(gameObject);
     }
 
     private void Start() {
         PlayDefaultBGM();
     }
-
+    private void OnDestroy() {
+        if (Instance == this) Instance = null;
+    }
     // ----------------- BGM Controls -----------------
     public void PlayDefaultBGM() {
         PlayMusic(overworldBgm);
@@ -46,10 +50,12 @@ public class AudioManager : MonoBehaviour {
 
     public void PauseMusic() {
         bgmSource.Pause();
+        PlaySFX(pauseClip);
     }
 
     public void ResumeMusic() {
         bgmSource.UnPause();
+        PlaySFX(pauseClip);
     }
 
     // ----------------- World SFX -----------------
