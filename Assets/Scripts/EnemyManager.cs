@@ -2,12 +2,12 @@ using UnityEngine;
 
 public class EnemyManager : MonoBehaviour {
     [SerializeField] private Transform enemiesParent;
+    [SerializeField] private IntVariable currentScoreSO;
+    [SerializeField] private IntGameEvent onScoreChanged;
     private void Start() {
-        GameManager.Instance.OnGameRestart += ResetAllEnemies;
         SubscribeToEnemies();
     }
     private void OnDestroy() {
-        GameManager.Instance.OnGameRestart -= ResetAllEnemies;
         UnsubscribeFromEnemies();
     }
 
@@ -22,8 +22,11 @@ public class EnemyManager : MonoBehaviour {
         }
     }
     private void HandleEnemyStomped() {
-        GameManager.Instance.AddScore(1);
+        currentScoreSO.ApplyChange(1);
+        onScoreChanged?.Raise(currentScoreSO.Value);
     }
+
+    // Called by SimpleGameEventListener listening to OnGameRestart
     public void ResetAllEnemies() {
         foreach (Transform child in enemiesParent) {
             if (child.TryGetComponent<EnemyMovement>(out var enemy)) enemy.ResetGoomba();

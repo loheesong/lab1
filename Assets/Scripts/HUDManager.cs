@@ -3,6 +3,9 @@ using UnityEngine.InputSystem;
 using TMPro;
 
 public class HUDManager : MonoBehaviour {
+    [Header("Shared Variable Reference")]
+    [SerializeField] private IntVariable currentScoreSO;
+
     [Header("UI References")]
     [SerializeField] private TextMeshProUGUI inGameScoreText;
     [SerializeField] private TextMeshProUGUI endGameScoreText;
@@ -10,31 +13,41 @@ public class HUDManager : MonoBehaviour {
     [SerializeField] private TextMeshProUGUI pauseButtonText;
     [SerializeField] private GameObject pauseUI;
 
+    [Header("Scene Controller")]
+    [SerializeField] private GameManager sceneGameManager;
+
     private void Start() {
-        GameManager.Instance.OnScoreChanged += HandleScoreChanged;
-        GameManager.Instance.OnStateChanged += HandleStateChanged;
-        HandleScoreChanged(GameManager.Instance.Score);
-        HandleStateChanged(GameManager.Instance.CurrentState);
+        UpdateScoreDisplay(currentScoreSO.Value);
     }
-    private void OnDestroy() {
-        GameManager.Instance.OnScoreChanged -= HandleScoreChanged;
-        GameManager.Instance.OnStateChanged -= HandleStateChanged;
-    }
+
     private void Update() {
         if (Keyboard.current.escapeKey.wasPressedThisFrame) TogglePause();
     }
 
-    private void HandleScoreChanged(int newScore) {
+    private void UpdateScoreDisplay(int newScore) {
         inGameScoreText.text = "Score: " + newScore;
         endGameScoreText.text = "Score: " + newScore;
     }
 
-    private void HandleStateChanged(GameState newState) {
-        gameOverUI.SetActive(newState == GameState.GameOver);
-        pauseButtonText.text = newState == GameState.Paused ? "UNPAUSE" : "PAUSE";
-        pauseUI.SetActive(newState == GameState.Paused);
+    public void HandleGameOver() {
+        gameOverUI.SetActive(true);
     }
-    public void TogglePause() => GameManager.Instance.TogglePause();
-    public void Restart() => GameManager.Instance.RestartGame();
-    public void ReturnToMainMenu() => GameManager.Instance.ReturnToMainMenu();
+
+    public void HandlePauseState(bool isPaused) {
+        pauseButtonText.text = isPaused ? "UNPAUSE" : "PAUSE";
+        pauseUI.SetActive(isPaused);
+    }
+
+    public void SetPausedUI() => HandlePauseState(true);
+    public void SetUnpausedUI() => HandlePauseState(false);
+    public void TogglePause() {
+        sceneGameManager.TogglePause();
+    }
+    public void Restart() {
+        sceneGameManager.RestartGame();
+    }
+    public void ReturnToMainMenu() {
+        sceneGameManager.ReturnToMainMenu();
+    }
+
 }

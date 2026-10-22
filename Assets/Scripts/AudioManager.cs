@@ -17,22 +17,10 @@ public class AudioManager : MonoBehaviour {
     [SerializeField] private AudioClip powerupAppearClip;
     [SerializeField] private AudioClip powerupCollectClip;
 
-    private void Awake() {
-        // Singleton pattern
-        if (Instance != null && Instance != this) {
-            Destroy(gameObject);
-            return;
-        }
-        Instance = this;
-        DontDestroyOnLoad(gameObject);
-    }
-
     private void Start() {
         PlayDefaultBGM();
     }
-    private void OnDestroy() {
-        if (Instance == this) Instance = null;
-    }
+
     // ----------------- BGM Controls -----------------
     public void PlayDefaultBGM() {
         PlayMusic(overworldBgm);

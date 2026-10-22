@@ -5,17 +5,28 @@ public class CoinController : MonoBehaviour {
     [Header("Bounce Settings")]
     [SerializeField] private float bounceHeight = 1.8f;
     [SerializeField] private float bounceDuration = 0.55f;
-    [Header("Score")]
-    [SerializeField] private int points = 1; private Vector3 startPos;
+
+    [Header("Score & Events")]
+    [SerializeField] private int points = 1;
+    [SerializeField] private IntVariable currentScoreSO;
+    [SerializeField] private IntGameEvent onScoreChanged;
+    [SerializeField] private AudioClip coinSound;
+    private AudioSource audioSource;
+    private Vector3 startPos;
+
+    void Awake() {
+        audioSource = GetComponent<AudioSource>();
+    }
 
     void Start() {
         startPos = transform.position;
-        AudioManager.Instance.PlayCoinSound();
+        audioSource.PlayOneShot(coinSound);
         StartCoroutine(BounceRoutine());
     }
 
     private IEnumerator BounceRoutine() {
-        GameManager.Instance.AddScore(points);
+        currentScoreSO.ApplyChange(points);
+        onScoreChanged?.Raise(currentScoreSO.Value);
 
         float half = bounceDuration / 2f;
         float elapsed = 0f;

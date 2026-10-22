@@ -51,7 +51,6 @@ public class EnemyMovement : MonoBehaviour {
     }
     void FixedUpdate() {
         if (isDead) return;
-        if (GameManager.Instance.CurrentState != GameState.Playing) return;
 
         CheckObstacle(); // Check for pipe/obstacle before moving!
 

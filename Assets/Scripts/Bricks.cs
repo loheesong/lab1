@@ -27,12 +27,6 @@ public class BrickController : MonoBehaviour {
 
         currCoinCount = coinCount;
     }
-    void Start() {
-        GameManager.Instance.OnGameRestart += ResetBrick;
-    }
-    void OnDestroy() {
-        GameManager.Instance.OnGameRestart -= ResetBrick;
-    }
 
     void OnCollisionEnter2D(Collision2D collision) {
         if (isBouncing) return;

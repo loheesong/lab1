@@ -26,12 +26,6 @@ public class QuestionBoxController : MonoBehaviour {
         originalLocalPos = transform.localPosition;
     }
 
-    void Start() {
-        GameManager.Instance.OnGameRestart += ResetQuestionBox;
-    }
-    void OnDestroy() {
-        GameManager.Instance.OnGameRestart -= ResetQuestionBox;
-    }
     void OnCollisionEnter2D(Collision2D collision) {
         // if already disabled, do nothing (no bounce, no sound, no spawn)
         if (isHit) return;
