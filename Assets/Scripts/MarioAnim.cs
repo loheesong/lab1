@@ -22,24 +22,10 @@ public class MarioAnim : MonoBehaviour {
     // SUBSCRIPTION LIFECYCLE
     private void OnEnable() {
         if (playerMovement == null) return;
-
-        // Subscribe to Subject events
-        playerMovement.OnSkid += HandleSkid;
-        playerMovement.OnGroundedChanged += HandleGroundedChanged;
-        playerMovement.OnDirectionChanged += HandleDirectionChanged;
-        playerMovement.OnPlayerReset += HandlePlayerReset;
-        playerMovement.OnPlayerDeath += HandlePlayerDeath;
     }
 
     private void OnDisable() {
         if (playerMovement == null) return;
-
-        // Unsubscribe to prevent memory leaks
-        playerMovement.OnSkid -= HandleSkid;
-        playerMovement.OnGroundedChanged -= HandleGroundedChanged;
-        playerMovement.OnDirectionChanged -= HandleDirectionChanged;
-        playerMovement.OnPlayerReset -= HandlePlayerReset;
-        playerMovement.OnPlayerDeath -= HandlePlayerDeath;
     }
 
     // FRAME UPDATE (Continuous Parameters)

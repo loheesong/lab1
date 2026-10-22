@@ -45,13 +45,6 @@ public class PlayerMovement : MonoBehaviour {
     // ---------------------------- ANIMATION ----------------------------
     private bool faceRightState = true;
 
-    public event Action OnPlayerJump;
-    public event Action OnSkid;                     // on rapid direction change
-    public event Action<bool> OnGroundedChanged;    // when landing or taking off
-    public event Action<bool> OnDirectionChanged;   // when changing left/right
-    public event Action OnPlayerReset;              // when ResetGame() is called
-    public event Action OnPlayerDeath;              // on death
-    public event Action OnEnemyStomped;
     [Header("Stomp Settings")]
     [SerializeField] private float stompBounceVelocity = 15f;
 
@@ -101,19 +94,31 @@ public class PlayerMovement : MonoBehaviour {
         if (other.gameObject.CompareTag("Enemy") && alive) {
             if (other.TryGetComponent<EnemyMovement>(out var enemy)) {
                 if (enemy.IsDead) return;
-
-                // Check if Mario is stomping Goomba from above:
-                if (transform.position.y > other.transform.position.y + 0.25f && rb.linearVelocity.y <= 1.5f) {
-                    Debug.Log("Goomba stomped!");
+                // 1. If StarMan buff is active -> instantly stomp/defeat enemy
+                if (TryGetComponent<BuffStateController>(out var buff) && buff.isInvincible) {
                     enemy.Stomp();
-                    rb.linearVelocity = new Vector2(rb.linearVelocity.x, stompBounceVelocity); // short hop after stomping
-                    OnEnemyStomped?.Invoke();
+                    return;
+                }
+                // 2. Normal Stomp from above
+                if (transform.position.y > other.transform.position.y + 0.25f && rb.linearVelocity.y <= 1.5f) {
+                    enemy.Stomp();
+                    rb.linearVelocity = new Vector2(rb.linearVelocity.x, stompBounceVelocity);
                     return;
                 }
             }
-            alive = false;
-            rb.linearVelocity = Vector2.zero;
-            OnPlayerDeath?.Invoke();
+            // 3. Mario takes damage -> forward to MarioStateController
+            if (TryGetComponent<MarioStateController>(out var mario)) {
+                // If already flashing/invincible after damage, ignore enemy hits
+                if (string.Equals(mario.currentState.name, "InvincibleSmallMario", System.StringComparison.OrdinalIgnoreCase)) {
+                    return;
+                }
+                mario.SetPowerup(PowerupType.Damage);
+                // Only die if Small Mario took damage (transitions to DeadMario)
+                if (string.Equals(mario.currentState.name, "SmallMario", System.StringComparison.OrdinalIgnoreCase)) {
+                    alive = false;
+                    rb.linearVelocity = Vector2.zero;
+                }
+            }
         }
     }
 
@@ -138,7 +143,6 @@ public class PlayerMovement : MonoBehaviour {
 
         if (currentlyGrounded != isGrounded) {
             isGrounded = currentlyGrounded;
-            OnGroundedChanged?.Invoke(isGrounded);
         }
     }
     public void OnMove(InputValue value) {
@@ -184,14 +188,11 @@ public class PlayerMovement : MonoBehaviour {
             rb.linearVelocityY = initialJumpVelocity;
             coyoteTimeCounter = 0f;
             isGrounded = false;
-            OnGroundedChanged?.Invoke(false);
-            OnPlayerJump?.Invoke(); // jump audio
         }
         // Mid-air double jump
         else if (canDoubleJump) {
             rb.linearVelocityY = initialJumpVelocity;
             canDoubleJump = false;
-            OnPlayerJump?.Invoke();
         }
     }
 
@@ -233,15 +234,13 @@ public class PlayerMovement : MonoBehaviour {
     private void flipSprite() {
         // Facing left when moving negative
         if (moveInput.x < -0.01f && faceRightState) {
-            if (isGrounded && rb.linearVelocity.x > 0.1f) OnSkid?.Invoke(); // skid
+            // if (isGrounded && rb.linearVelocity.x > 0.1f) OnSkid?.Invoke(); // skid
             faceRightState = false;
-            OnDirectionChanged?.Invoke(faceRightState);
         }
         // Facing right when moving positive
         else if (moveInput.x > 0.01f && !faceRightState) {
-            if (isGrounded && rb.linearVelocity.x < -0.1f) OnSkid?.Invoke(); // skid
+            // if (isGrounded && rb.linearVelocity.x < -0.1f) OnSkid?.Invoke(); // skid
             faceRightState = true;
-            OnDirectionChanged?.Invoke(faceRightState);
         }
     }
     public void PlayDeathImpulse() {
@@ -258,9 +257,7 @@ public class PlayerMovement : MonoBehaviour {
         rb.linearVelocity = Vector2.zero;
         transform.position = spawnPoint.position;
         faceRightState = true;
-        OnDirectionChanged?.Invoke(faceRightState);
         gameCamera.position = cameraSpawnPoint.position;
         // Notify observers (e.g. animation reset)
-        OnPlayerReset?.Invoke();
     }
 }

@@ -6,7 +6,6 @@ public class EnemyMovement : MonoBehaviour {
     // ---------------------------- EVENTS & DELEGATES ----------------------------
     public delegate void EnemyStomped();
     public event EnemyStomped OnStomped;
-    public event Action OnReset;
 
     // ---------------------------- MOVEMENT ----------------------------
     private float originalX;
@@ -75,7 +74,6 @@ public class EnemyMovement : MonoBehaviour {
         originalX = transform.position.x;
         moveRight = -1; // start moving left
         ComputeVelocity();
-        OnReset?.Invoke();
     }
 
     void ComputeVelocity() {

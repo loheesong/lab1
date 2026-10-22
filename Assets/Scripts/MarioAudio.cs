@@ -15,18 +15,6 @@ public class MarioAudio : MonoBehaviour {
         playerMovement = GetComponent<PlayerMovement>();
     }
 
-    private void OnEnable() {
-        playerMovement.OnPlayerJump += PlayJump;
-        playerMovement.OnPlayerDeath += PlayDeath;
-        playerMovement.OnPlayerReset += RestartMusic;
-    }
-
-    private void OnDisable() {
-        playerMovement.OnPlayerJump -= PlayJump;
-        playerMovement.OnPlayerDeath -= PlayDeath;
-        playerMovement.OnPlayerReset -= RestartMusic;
-    }
-
     private void PlayJump() {
         audioSource.PlayOneShot(jumpClip);
     }
