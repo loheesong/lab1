@@ -1011,6 +1011,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::MainMenuController
   highScoreSO: {fileID: 11400000, guid: a5b15f8facecc4f949db7760a1688552, type: 2}
   highScoreText: {fileID: 1819585228}
+  currentScoreSO: {fileID: 11400000, guid: 12b1f2b8a352247dda0e84d77203d553, type: 2}
 --- !u!4 &1322014942
 Transform:
   m_ObjectHideFlags: 0

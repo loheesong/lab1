@@ -13,6 +13,7 @@ GameObject:
   - component: {fileID: 3429633395914839487}
   - component: {fileID: 4829722072563925671}
   - component: {fileID: 4067157389001844548}
+  - component: {fileID: 8099423801426295917}
   m_Layer: 0
   m_Name: MagicMushroom
   m_TagString: Untagged
@@ -179,4 +180,35 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 508e1bfe2b3db44aeb2c2fe9aa38eed7, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::MagicMushroomPowerup
+  powerupType: 0
+  lifetime: 10
+  collectSound: {fileID: 8300000, guid: 26301d2e86e99420599e315297a825df, type: 3}
   speed: 4
+--- !u!114 &8099423801426295917
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6351139930438840808}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 671d01fdea5054fe5b3c8be2f9d79d9c, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::SimpleGameEventListener
+  gameEvent: {fileID: 11400000, guid: dad01aed5e23741bcadf25ce7728b38e, type: 2}
+  response:
+    m_PersistentCalls:
+      m_Calls:
+      - m_Target: {fileID: 4067157389001844548}
+        m_TargetAssemblyTypeName: MagicMushroomPowerup, Assembly-CSharp
+        m_MethodName: DestroyPowerup
+        m_Mode: 1
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2

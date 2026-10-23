@@ -7,6 +7,7 @@ public class MagicMushroomPowerup : BasePowerup {
 
     void Awake() {
         rb = GetComponent<Rigidbody2D>();
+        powerupType = PowerupType.MagicMushroom;
     }
 
     void FixedUpdate() {
@@ -21,7 +22,9 @@ public class MagicMushroomPowerup : BasePowerup {
 
     void OnCollisionEnter2D(Collision2D collision) {
         if (collision.gameObject.CompareTag("Player")) {
+            consumed = true;
             ApplyPowerup(collision.gameObject);
+            AudioSource.PlayClipAtPoint(collectSound, transform.position);
             Destroy(gameObject);
             return;
         }

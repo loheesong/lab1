@@ -62,6 +62,9 @@ public class BrickController : MonoBehaviour {
     }
 
     public void ResetBrick() {
+        StopAllCoroutines();
+        isBouncing = false;
+        transform.localPosition = originalLocalPos;
         currCoinCount = coinCount;
     }
 

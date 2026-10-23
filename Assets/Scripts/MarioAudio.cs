@@ -7,27 +7,25 @@ public class MarioAudio : MonoBehaviour {
     [SerializeField] private AudioClip jumpClip;
     [SerializeField] private AudioClip deathClip;
 
+    [SerializeField] private SimpleGameEvent onMarioDied;
+
     private AudioSource audioSource;
-    private PlayerMovement playerMovement;
 
     private void Awake() {
         audioSource = GetComponent<AudioSource>();
-        playerMovement = GetComponent<PlayerMovement>();
     }
 
-    private void PlayJump() {
+    public void PlayJump() {
         audioSource.PlayOneShot(jumpClip);
     }
 
-    private void PlayDeath() {
-        AudioManager.Instance.StopMusic();
+    public void PlayDeath() {
         audioSource.Stop();
         audioSource.PlayOneShot(deathClip);
+        onMarioDied?.Raise();
     }
 
     private void RestartMusic() {
-        if (AudioManager.Instance != null) {
-            AudioManager.Instance.PlayDefaultBGM();
-        }
+
     }
 }

@@ -12,7 +12,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 756ec6bdfa4cb4f73add3c99d604abf0, type: 3}
   m_Name: DefaultBuffState
   m_EditorClassIdentifier: Assembly-CSharp::State
-  setupActions: []
+  setupActions:
+  - {fileID: 11400000, guid: 3ef3eff784a58486ab0b27c98f6d9e36, type: 2}
   actions: []
   eventTriggeredActions: []
   exitActions: []

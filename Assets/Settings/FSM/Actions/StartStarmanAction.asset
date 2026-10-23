@@ -12,3 +12,4 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 754473de009cf4978b9b6d707e973118, type: 3}
   m_Name: StartStarmanAction
   m_EditorClassIdentifier: Assembly-CSharp::StartStarmanAction
+  starmanAnimator: {fileID: 9100000, guid: 8b502b2ae165b411aa7c2939e78df03c, type: 2}

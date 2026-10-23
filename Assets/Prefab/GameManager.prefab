@@ -10,6 +10,8 @@ GameObject:
   m_Component:
   - component: {fileID: 8483682068005859889}
   - component: {fileID: 6047250907251248490}
+  - component: {fileID: 996707629013975498}
+  - component: {fileID: 5184318270882106277}
   m_Layer: 0
   m_Name: GameManager
   m_TagString: Untagged
@@ -45,5 +47,66 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::GameManager
   currentState: 0
-  score: 0
+  currentScoreSO: {fileID: 11400000, guid: 12b1f2b8a352247dda0e84d77203d553, type: 2}
   highScoreSO: {fileID: 11400000, guid: a5b15f8facecc4f949db7760a1688552, type: 2}
+  onScoreChanged: {fileID: 11400000, guid: ed2776611e2cc4dd0be36e87feb41789, type: 2}
+  onGameRestart: {fileID: 11400000, guid: dad01aed5e23741bcadf25ce7728b38e, type: 2}
+  onGameOver: {fileID: 11400000, guid: d421c742a92114a1884fd86eb8580e47, type: 2}
+  onGamePause: {fileID: 11400000, guid: fa53f1158d7cb419b878c4142cfff3df, type: 2}
+  onGameResume: {fileID: 11400000, guid: 160bd378a34f8400e9cab7cf7382f7eb, type: 2}
+--- !u!114 &996707629013975498
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7284731013641544316}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 671d01fdea5054fe5b3c8be2f9d79d9c, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::SimpleGameEventListener
+  gameEvent: {fileID: 11400000, guid: d421c742a92114a1884fd86eb8580e47, type: 2}
+  response:
+    m_PersistentCalls:
+      m_Calls:
+      - m_Target: {fileID: 6047250907251248490}
+        m_TargetAssemblyTypeName: GameManager, Assembly-CSharp
+        m_MethodName: GameOver
+        m_Mode: 1
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
+--- !u!114 &5184318270882106277
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7284731013641544316}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c31012277514d4b28a26cff65de0de63, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::IntGameEventListener
+  gameEvent: {fileID: 11400000, guid: ed2776611e2cc4dd0be36e87feb41789, type: 2}
+  response:
+    m_PersistentCalls:
+      m_Calls:
+      - m_Target: {fileID: 6047250907251248490}
+        m_TargetAssemblyTypeName: GameManager, Assembly-CSharp
+        m_MethodName: UpdateHighScore
+        m_Mode: 0
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2

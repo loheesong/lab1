@@ -16,6 +16,12 @@ public class HUDManager : MonoBehaviour {
     [Header("Scene Controller")]
     [SerializeField] private GameManager sceneGameManager;
 
+
+    private void Awake() {
+        pauseUI.SetActive(false);
+        gameOverUI.SetActive(false);
+        pauseButtonText.text = "PAUSE";
+    }
     private void Start() {
         UpdateScoreDisplay(currentScoreSO.Value);
     }
@@ -24,13 +30,18 @@ public class HUDManager : MonoBehaviour {
         if (Keyboard.current.escapeKey.wasPressedThisFrame) TogglePause();
     }
 
-    private void UpdateScoreDisplay(int newScore) {
+    public void UpdateScoreDisplay(int newScore) {
         inGameScoreText.text = "Score: " + newScore;
         endGameScoreText.text = "Score: " + newScore;
     }
 
     public void HandleGameOver() {
         gameOverUI.SetActive(true);
+    }
+
+    public void HandleRestart() {
+        gameOverUI.SetActive(false);
+        pauseUI.SetActive(false);
     }
 
     public void HandlePauseState(bool isPaused) {
@@ -44,6 +55,7 @@ public class HUDManager : MonoBehaviour {
         sceneGameManager.TogglePause();
     }
     public void Restart() {
+        HandleRestart();
         sceneGameManager.RestartGame();
     }
     public void ReturnToMainMenu() {

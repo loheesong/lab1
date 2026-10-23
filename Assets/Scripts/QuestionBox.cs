@@ -11,7 +11,12 @@ public class QuestionBoxController : MonoBehaviour {
     [SerializeField] private GameObject coinPrefab;
     [SerializeField] private GameObject mushroomPrefab;
     [SerializeField] private GameObject starPrefab;
+    [SerializeField] private GameObject fireFlowerPrefab;
     [SerializeField] private PowerupType spawnType = PowerupType.Coin;
+
+    [Header("Audio")]
+    [SerializeField] private AudioClip appearSound;
+    private AudioSource audioSource;
 
     [Header("Bounce Settings")]
     [SerializeField] private float bounceHeight = 0.25f;
@@ -23,6 +28,7 @@ public class QuestionBoxController : MonoBehaviour {
     void Awake() {
         spriteRenderer = GetComponent<SpriteRenderer>();
         animator = GetComponent<Animator>();
+        audioSource = GetComponent<AudioSource>();
         originalLocalPos = transform.localPosition;
     }
 
@@ -49,21 +55,26 @@ public class QuestionBoxController : MonoBehaviour {
         animator.enabled = false;
         spriteRenderer.sprite = disabledSprite;
 
+        audioSource.PlayOneShot(appearSound);
+
         // spawn the animated coin
         GameObject prefab = spawnType switch {
             PowerupType.MagicMushroom => mushroomPrefab,
             PowerupType.StarMan => starPrefab,
+            PowerupType.FireFlower => fireFlowerPrefab,
             _ => coinPrefab,
         };
-        float yOffset = spawnType == PowerupType.MagicMushroom ? 1.0f : 0.5f;
+        float yOffset = spawnType == PowerupType.Coin ? 0.5f : 1.0f;
         Instantiate(prefab, transform.position + Vector3.up * yOffset, Quaternion.identity);
 
         StartCoroutine(BounceRoutine());
     }
 
     public void ResetQuestionBox() {
+        StopAllCoroutines();
         isHit = false;
         animator.enabled = true;
+        transform.localPosition = originalLocalPos;
     }
 
     private IEnumerator BounceRoutine() {

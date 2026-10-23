@@ -26,25 +26,28 @@ public class GameManager : MonoBehaviour {
     [SerializeField] private SimpleGameEvent onGameResume;
 
     private void Start() {
+        currentState = GameState.Playing;
         SetGameState(GameState.Playing);
         onScoreChanged.Raise(currentScoreSO.Value);
     }
 
     public void SetGameState(GameState newState) {
+        if (currentState == newState) return; // Prevent duplicate triggerss
+        GameState previousState = currentState;
         currentState = newState;
 
         switch (currentState) {
             case GameState.Playing:
                 Time.timeScale = 1.0f;
-                onGameResume?.Raise();
+                if (previousState == GameState.Paused) onGameResume.Raise();
                 break;
             case GameState.GameOver:
                 Time.timeScale = 0.0f;
-                onGameOver?.Raise();
+                onGameOver.Raise();
                 break;
             case GameState.Paused:
                 Time.timeScale = 0.0f;
-                onGamePause?.Raise();
+                onGamePause.Raise();
                 break;
         }
     }
@@ -64,18 +67,20 @@ public class GameManager : MonoBehaviour {
         SceneManager.LoadScene("MainMenu");
     }
 
-    public void AddScore(int points) {
-        if (currentState != GameState.Playing) return;
-        currentScoreSO.ApplyChange(points);
-        onScoreChanged?.Raise(currentScoreSO.Value);
-        if (currentScoreSO.Value > highScoreSO.Value) highScoreSO.SetValue(currentScoreSO.Value);
-    }
-
     // Called by the Restart Button
     public void RestartGame() {
         currentScoreSO.ResetValue();
-        onScoreChanged?.Raise(currentScoreSO.Value);
-        onGameRestart?.Raise();
+        onScoreChanged.Raise(currentScoreSO.Value);
+        onGameRestart.Raise();
         SetGameState(GameState.Playing);
+    }
+
+    public void GameOver() {
+        currentState = GameState.GameOver;
+        Time.timeScale = 0f;
+    }
+
+    public void UpdateHighScore(int score) {
+        if (score > highScoreSO.Value) highScoreSO.SetValue(score);
     }
 }

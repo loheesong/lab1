@@ -17,16 +17,19 @@ public class StarPowerup : BasePowerup {
 
     void OnCollisionEnter2D(Collision2D collision) {
         if (collision.gameObject.CompareTag("Player")) {
+            consumed = true;
             ApplyPowerup(collision.gameObject);
+            AudioSource.PlayClipAtPoint(collectSound, transform.position);
             Destroy(gameObject);
             return;
         }
 
-        // Bounce on floor
-        if (collision.contacts[0].normal.y > 0.5f) {
-            rb.linearVelocity = new Vector2(rb.linearVelocity.x, jumpForce);
-        } else if (Mathf.Abs(collision.contacts[0].normal.x) > 0.5f) {
-            direction *= -1;
+        if (collision.contacts.Length > 0) {
+            if (collision.contacts[0].normal.y > 0.5f) {
+                rb.linearVelocity = new Vector2(rb.linearVelocity.x, jumpForce);
+            } else if (Mathf.Abs(collision.contacts[0].normal.x) > 0.5f) {
+                direction *= -1;
+            }
         }
     }
 

@@ -13,4 +13,6 @@ MonoBehaviour:
   m_Name: CurrentScoreSO
   m_EditorClassIdentifier: Assembly-CSharp::IntVariable
   value: 0
+  initialValue: 0
+  resetOnPlay: 1
   persistInPlayerPrefs: 0

@@ -43,7 +43,6 @@ public class PlayerMovement : MonoBehaviour {
     private float coyoteTimeCounter;
 
     // ---------------------------- ANIMATION ----------------------------
-    private bool faceRightState = true;
 
     [Header("Stomp Settings")]
     [SerializeField] private float stompBounceVelocity = 15f;
@@ -55,9 +54,17 @@ public class PlayerMovement : MonoBehaviour {
     public float deathImpulse = 5f;
     [System.NonSerialized] public bool alive = true;
 
+    [Header("Shared SO References")]
+    [SerializeField] private BoolVariable marioFaceRightSO;
+    [SerializeField] private SimpleGameEvent onGameOverEvent;
+    private MarioAudio marioAudio;
+    private MarioStateController marioStateController;
+
     private void Awake() {
         rb = GetComponent<Rigidbody2D>();
         col = GetComponent<BoxCollider2D>();
+        marioAudio = GetComponent<MarioAudio>();
+        marioStateController = GetComponent<MarioStateController>();
         rb.gravityScale = 0f;
         CalculateJumpVariables();
     }
@@ -99,8 +106,8 @@ public class PlayerMovement : MonoBehaviour {
                     enemy.Stomp();
                     return;
                 }
-                // 2. Normal Stomp from above
-                if (transform.position.y > other.transform.position.y + 0.25f && rb.linearVelocity.y <= 1.5f) {
+                // 2. Normal Stomp from above (compare feet, not centre, so taller Super/Fire Mario isn't always "above")
+                if (col.bounds.min.y > other.transform.position.y - 0.25f && rb.linearVelocity.y <= 1.5f) {
                     enemy.Stomp();
                     rb.linearVelocity = new Vector2(rb.linearVelocity.x, stompBounceVelocity);
                     return;
@@ -115,8 +122,7 @@ public class PlayerMovement : MonoBehaviour {
                 mario.SetPowerup(PowerupType.Damage);
                 // Only die if Small Mario took damage (transitions to DeadMario)
                 if (string.Equals(mario.currentState.name, "SmallMario", System.StringComparison.OrdinalIgnoreCase)) {
-                    alive = false;
-                    rb.linearVelocity = Vector2.zero;
+                    KillMario();   // replaces: alive = false; rb.linearVelocity = Vector2.zero;
                 }
             }
         }
@@ -188,11 +194,13 @@ public class PlayerMovement : MonoBehaviour {
             rb.linearVelocityY = initialJumpVelocity;
             coyoteTimeCounter = 0f;
             isGrounded = false;
+            marioAudio.PlayJump();
         }
         // Mid-air double jump
         else if (canDoubleJump) {
             rb.linearVelocityY = initialJumpVelocity;
             canDoubleJump = false;
+            marioAudio.PlayJump();
         }
     }
 
@@ -230,17 +238,35 @@ public class PlayerMovement : MonoBehaviour {
             coyoteTimeCounter -= Time.deltaTime;
         }
     }
+    // ---------------------------- POWERUPS ----------------------------
+    public void OnFire(InputValue value) {
+        if (!alive) return;
+        if (value.isPressed) {
+            marioStateController.Fire();
+        }
+    }
+
+    public void KillMario() {
+        if (!alive) return;
+        alive = false;
+        PlayDeathImpulse();
+        marioAudio.PlayDeath();
+    }
+
+    public void GameOverScene() {
+        onGameOverEvent.Raise();
+    }
     // ---------------------------- ANIMATION ----------------------------
     private void flipSprite() {
         // Facing left when moving negative
-        if (moveInput.x < -0.01f && faceRightState) {
+        if (moveInput.x < -0.01f && marioFaceRightSO.Value) {
             // if (isGrounded && rb.linearVelocity.x > 0.1f) OnSkid?.Invoke(); // skid
-            faceRightState = false;
+            marioFaceRightSO.SetValue(false);
         }
         // Facing right when moving positive
-        else if (moveInput.x > 0.01f && !faceRightState) {
+        else if (moveInput.x > 0.01f && !marioFaceRightSO.Value) {
             // if (isGrounded && rb.linearVelocity.x < -0.1f) OnSkid?.Invoke(); // skid
-            faceRightState = true;
+            marioFaceRightSO.SetValue(true);
         }
     }
     public void PlayDeathImpulse() {
@@ -256,7 +282,7 @@ public class PlayerMovement : MonoBehaviour {
         moveInput = Vector2.zero;
         rb.linearVelocity = Vector2.zero;
         transform.position = spawnPoint.position;
-        faceRightState = true;
+        marioFaceRightSO.SetValue(true);
         gameCamera.position = cameraSpawnPoint.position;
         // Notify observers (e.g. animation reset)
     }

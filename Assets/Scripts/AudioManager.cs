@@ -1,8 +1,6 @@
 using UnityEngine;
 
 public class AudioManager : MonoBehaviour {
-    public static AudioManager Instance { get; private set; }
-
     [Header("Audio Sources")]
     [SerializeField] private AudioSource bgmSource;
     [SerializeField] private AudioSource sfxSource;
@@ -16,6 +14,10 @@ public class AudioManager : MonoBehaviour {
     [SerializeField] private AudioClip brickBumpClip;
     [SerializeField] private AudioClip powerupAppearClip;
     [SerializeField] private AudioClip powerupCollectClip;
+    [SerializeField] private AudioClip starmanBgm;
+    [SerializeField] private AudioClip gameOverClip;
+    public void PlayStarmanBGM() => PlayMusic(starmanBgm);
+    public void PlayGameOver() => PlaySFX(gameOverClip);
 
     private void Start() {
         PlayDefaultBGM();

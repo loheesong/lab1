@@ -14,6 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::State
   setupActions:
   - {fileID: 11400000, guid: e710246a052b14920b4922ee641de8b6, type: 2}
+  - {fileID: 11400000, guid: f476e23cf45345a2ba2c0935662ed576, type: 2}
   - {fileID: 11400000, guid: 7f53ec9fa2d244b02a9f190bed17b5f7, type: 2}
   actions: []
   eventTriggeredActions: []
